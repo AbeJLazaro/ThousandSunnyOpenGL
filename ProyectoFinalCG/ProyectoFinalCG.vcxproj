@@ -117,12 +117,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ProyectoFinal\deps\glm;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ProyectoFinal\deps\glfw\include;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ProyectoFinal\deps\glad\include;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ProyectoFinal\deps\assimp\include;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ProyectoFinal\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\glm;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\glfw\include;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\glad\include;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\assimp\include;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ProyectoFinal\deps\glfw\lib\Debug;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ProyectoFinal\deps\glad\lib\Debug;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ProyectoFinal\deps\assimp\lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\glfw\lib\Debug;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\glad\lib\Debug;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\assimp\lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;assimp-vc142-mtd.lib;glad.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
