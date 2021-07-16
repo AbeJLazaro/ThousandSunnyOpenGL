@@ -44,6 +44,7 @@ struct SpotLight {
 };
 
 #define NR_POINT_LIGHTS 4
+#define NR_DIR_LIGHTS 1
 
 in vec3 FragPos;
 in vec3 Normal;
@@ -51,9 +52,9 @@ in vec2 TexCoords;
 
 // viewPos es eye en la práctica
 // Luces
-uniform DirLight dirLight;
+uniform DirLight dirLight[NR_DIR_LIGHTS];
 uniform SpotLight spotLight;
-uniform PointLight pointLights[NR_POINT_LIGHTS];
+//uniform PointLight pointLights[NR_POINT_LIGHTS];
 // propiedades material
 uniform vec4 MaterialAmbientColor;
 uniform vec4 MaterialDiffuseColor;
@@ -75,13 +76,14 @@ void main()
     // Propiedades
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
-    
+    vec3 result = vec3(0.0,0.0,0.0);
     // Calculo de la luz direccional
-    vec3 result = CalcDirLight(dirLight, norm, viewDir);
+    for(int i = 0; i < NR_DIR_LIGHTS; i++)
+        result += CalcDirLight(dirLight[i], norm, viewDir);
     
     // Calculo de las luces puntuales
-    for(int i = 0; i < NR_POINT_LIGHTS; i++)
-        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir); 
+    //for(int i = 0; i < NR_POINT_LIGHTS; i++)
+    //    result += CalcPointLight(pointLights[i], norm, FragPos, viewDir); 
 
     // Calculo de la luz linterna
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir); 

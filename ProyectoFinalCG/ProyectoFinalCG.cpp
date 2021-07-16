@@ -74,6 +74,13 @@ glm::vec3 LuzPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 // Luces 
 // Luz direccional
 DirectionalLight sol;
+DirectionalLight contraSol;
+DirectionalLight posx;
+DirectionalLight negx;
+DirectionalLight posy;
+DirectionalLight negy;
+DirectionalLight posz;
+DirectionalLight negz;
 // PointLights
 PointLight L0;
 PointLight L1;
@@ -244,7 +251,7 @@ bool InicializacionModelos() {
 	}*/
 
 	// Materiales Barco Exterior Phong 
-	/*
+	
 	{
 		Canons = new Model("models/Sunny/Canons.fbx");
 		if (Canons == nullptr) {
@@ -418,7 +425,7 @@ bool InicializacionModelos() {
 			return false;
 		}
 	}
-	*/
+	
 	/*
 	A = new Model("models/Sunny/A.fbx");
 	if (A == nullptr) {
@@ -432,11 +439,11 @@ bool InicializacionModelos() {
 		cout << "Error loading Vidrio Model." << endl;
 		return false;
 	}
-	/*VentanaPuertaSinMarco = new Model("models/Sunny/VentanaPuertaSinMarco.fbx");
+	VentanaPuertaSinMarco = new Model("models/Sunny/VentanaPuertaSinMarco.fbx");
 	if (VentanaPuertaSinMarco == nullptr) {
 		cout << "Error loading VentanaPuertaSinMarco Model." << endl;
 		return false;
-	}*/
+	}
 
 	// Fondo Cubo 
 	Fondo = new Model("models/Sunny/CubeMap.fbx");
@@ -470,6 +477,14 @@ bool Update() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Cambio de propiedades de la Luz
+	// Luz direccional
+	contraSol.Direction = glm::vec3(0.0f, 1.0f, 0.0f);
+	posx.Direction = glm::vec3(1.0f, 0.0f, 0.0f);
+	negx.Direction = glm::vec3(-1.0f, 0.0f, 0.0f);
+	posy.Direction = glm::vec3(0.0f, 1.0f, 0.0f);
+	negy.Direction = glm::vec3(0.0f, -1.0f, 0.0f);
+	posz.Direction = glm::vec3(0.0f, 0.0f, 1.0f);
+	negz.Direction = glm::vec3(0.0f, 0.0f, -1.0f);
 
 	// Puntos de luz
 	L0.setPosition(38.4f, -0.6f, -22.9f);
@@ -483,7 +498,7 @@ bool Update() {
 	
 	// Materiales sin textura
 	{
-		/*// Activamos el shader estático
+		// Activamos el shader estático
 		materialSinTexturaShader->use();
 
 		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
@@ -501,13 +516,55 @@ bool Update() {
 
 		// Propiedades de la luz
 
-		// Luz direccional
-		materialSinTexturaShader->setVec3("dirLight.direction", sol.Direction);
-		materialSinTexturaShader->setVec3("dirLight.ambient", sol.Ambient);
-		materialSinTexturaShader->setVec3("dirLight.diffuse", sol.Diffuse);
-		materialSinTexturaShader->setVec3("dirLight.specular", sol.Specular);
-		materialSinTexturaShader->setVec3("dirLight.power", sol.Power);
+		// Luz direccional 1
+		materialSinTexturaShader->setVec3("dirLight[0].direction", sol.Direction);
+		materialSinTexturaShader->setVec3("dirLight[0].ambient", sol.Ambient);
+		materialSinTexturaShader->setVec3("dirLight[0].diffuse", sol.Diffuse);
+		materialSinTexturaShader->setVec3("dirLight[0].specular", sol.Specular);
+		materialSinTexturaShader->setVec3("dirLight[0].power", sol.Power);
+		//// Luz direccional 2
+		//materialSinTexturaShader->setVec3("dirLight[1].direction", contraSol.Direction);
+		//materialSinTexturaShader->setVec3("dirLight[1].ambient", contraSol.Ambient);
+		//materialSinTexturaShader->setVec3("dirLight[1].diffuse", contraSol.Diffuse);
+		//materialSinTexturaShader->setVec3("dirLight[1].specular", contraSol.Specular);
+		//materialSinTexturaShader->setVec3("dirLight[1].power", contraSol.Power);
 
+		//// Luz direccional posx
+		//materialSinTexturaShader->setVec3("dirLight[0].direction", posx.Direction);
+		//materialSinTexturaShader->setVec3("dirLight[0].ambient", posx.Ambient);
+		//materialSinTexturaShader->setVec3("dirLight[0].diffuse", posx.Diffuse);
+		//materialSinTexturaShader->setVec3("dirLight[0].specular", posx.Specular);
+		//materialSinTexturaShader->setVec3("dirLight[0].power", posx.Power);
+		//// Luz direccional negx
+		//materialSinTexturaShader->setVec3("dirLight[1].direction", negx.Direction);
+		//materialSinTexturaShader->setVec3("dirLight[1].ambient", negx.Ambient);
+		//materialSinTexturaShader->setVec3("dirLight[1].diffuse", negx.Diffuse);
+		//materialSinTexturaShader->setVec3("dirLight[1].specular", negx.Specular);
+		//materialSinTexturaShader->setVec3("dirLight[1].power", negx.Power);
+		//// Luz direccional posy
+		//materialSinTexturaShader->setVec3("dirLight[2].direction", posy.Direction);
+		//materialSinTexturaShader->setVec3("dirLight[2].ambient", posy.Ambient);
+		//materialSinTexturaShader->setVec3("dirLight[2].diffuse", posy.Diffuse);
+		//materialSinTexturaShader->setVec3("dirLight[2].specular", posy.Specular);
+		//materialSinTexturaShader->setVec3("dirLight[2].power", posy.Power);
+		//// Luz direccional negy
+		//materialSinTexturaShader->setVec3("dirLight[3].direction", negy.Direction);
+		//materialSinTexturaShader->setVec3("dirLight[3].ambient", negy.Ambient);
+		//materialSinTexturaShader->setVec3("dirLight[3].diffuse", negy.Diffuse);
+		//materialSinTexturaShader->setVec3("dirLight[3].specular", negy.Specular);
+		//materialSinTexturaShader->setVec3("dirLight[3].power", negy.Power);
+		//// Luz direccional posz
+		//materialSinTexturaShader->setVec3("dirLight[4].direction", posz.Direction);
+		//materialSinTexturaShader->setVec3("dirLight[4].ambient", posz.Ambient);
+		//materialSinTexturaShader->setVec3("dirLight[4].diffuse", posz.Diffuse);
+		//materialSinTexturaShader->setVec3("dirLight[4].specular", posz.Specular);
+		//materialSinTexturaShader->setVec3("dirLight[4].power", posz.Power);
+		//// Luz direccional negz
+		//materialSinTexturaShader->setVec3("dirLight[5].direction", negz.Direction);
+		//materialSinTexturaShader->setVec3("dirLight[5].ambient", negz.Ambient);
+		//materialSinTexturaShader->setVec3("dirLight[5].diffuse", negz.Diffuse);
+		//materialSinTexturaShader->setVec3("dirLight[5].specular", negz.Specular);
+		//materialSinTexturaShader->setVec3("dirLight[5].power", negz.Power);
 		// Luz de linterna
 		materialSinTexturaShader->setVec3("spotLight.position", camera.Position);
 		materialSinTexturaShader->setVec3("spotLight.direction", camera.Front);
@@ -520,45 +577,45 @@ bool Update() {
 		materialSinTexturaShader->setFloat("spotLight.cutOff", Lintern.CutOff);
 		materialSinTexturaShader->setFloat("spotLight.outerCutOff", Lintern.OuterCutOff);
 
-		// point light 1
-		materialSinTexturaShader->setVec3("pointLights[0].position", L0.Position);
-		materialSinTexturaShader->setVec3("pointLights[0].ambient", L0.Ambient);
-		materialSinTexturaShader->setVec3("pointLights[0].diffuse", L0.Diffuse);
-		materialSinTexturaShader->setVec3("pointLights[0].specular", L0.Specular);
-		materialSinTexturaShader->setFloat("pointLights[0].constant", L0.Constant);
-		materialSinTexturaShader->setFloat("pointLights[0].linear", L0.Linear);
-		materialSinTexturaShader->setFloat("pointLights[0].quadratic", L0.Quadratic);
-		materialSinTexturaShader->setVec3("pointLights[0].power", L0.Power);
-		
-		// point light 2
-		materialSinTexturaShader->setVec3("pointLights[1].position", L1.Position);
-		materialSinTexturaShader->setVec3("pointLights[1].ambient", L1.Ambient);
-		materialSinTexturaShader->setVec3("pointLights[1].diffuse", L1.Diffuse);
-		materialSinTexturaShader->setVec3("pointLights[1].specular", L1.Specular);
-		materialSinTexturaShader->setFloat("pointLights[1].constant", L1.Constant);
-		materialSinTexturaShader->setFloat("pointLights[1].linear", L1.Linear);
-		materialSinTexturaShader->setFloat("pointLights[1].quadratic", L1.Quadratic);
-		materialSinTexturaShader->setVec3("pointLights[1].power", L1.Power);
+		//// point light 1
+		//materialSinTexturaShader->setVec3("pointLights[0].position", L0.Position);
+		//materialSinTexturaShader->setVec3("pointLights[0].ambient", L0.Ambient);
+		//materialSinTexturaShader->setVec3("pointLights[0].diffuse", L0.Diffuse);
+		//materialSinTexturaShader->setVec3("pointLights[0].specular", L0.Specular);
+		//materialSinTexturaShader->setFloat("pointLights[0].constant", L0.Constant);
+		//materialSinTexturaShader->setFloat("pointLights[0].linear", L0.Linear);
+		//materialSinTexturaShader->setFloat("pointLights[0].quadratic", L0.Quadratic);
+		//materialSinTexturaShader->setVec3("pointLights[0].power", L0.Power);
+		//
+		//// point light 2
+		//materialSinTexturaShader->setVec3("pointLights[1].position", L1.Position);
+		//materialSinTexturaShader->setVec3("pointLights[1].ambient", L1.Ambient);
+		//materialSinTexturaShader->setVec3("pointLights[1].diffuse", L1.Diffuse);
+		//materialSinTexturaShader->setVec3("pointLights[1].specular", L1.Specular);
+		//materialSinTexturaShader->setFloat("pointLights[1].constant", L1.Constant);
+		//materialSinTexturaShader->setFloat("pointLights[1].linear", L1.Linear);
+		//materialSinTexturaShader->setFloat("pointLights[1].quadratic", L1.Quadratic);
+		//materialSinTexturaShader->setVec3("pointLights[1].power", L1.Power);
 
-		// point light 3
-		materialSinTexturaShader->setVec3("pointLights[2].position", L2.Position);
-		materialSinTexturaShader->setVec3("pointLights[2].ambient", L2.Ambient);
-		materialSinTexturaShader->setVec3("pointLights[2].diffuse", L2.Diffuse);
-		materialSinTexturaShader->setVec3("pointLights[2].specular", L2.Specular);
-		materialSinTexturaShader->setFloat("pointLights[2].constant", L2.Constant);
-		materialSinTexturaShader->setFloat("pointLights[2].linear", L2.Linear);
-		materialSinTexturaShader->setFloat("pointLights[2].quadratic", L2.Quadratic);
-		materialSinTexturaShader->setVec3("pointLights[2].power", L2.Power);
+		//// point light 3
+		//materialSinTexturaShader->setVec3("pointLights[2].position", L2.Position);
+		//materialSinTexturaShader->setVec3("pointLights[2].ambient", L2.Ambient);
+		//materialSinTexturaShader->setVec3("pointLights[2].diffuse", L2.Diffuse);
+		//materialSinTexturaShader->setVec3("pointLights[2].specular", L2.Specular);
+		//materialSinTexturaShader->setFloat("pointLights[2].constant", L2.Constant);
+		//materialSinTexturaShader->setFloat("pointLights[2].linear", L2.Linear);
+		//materialSinTexturaShader->setFloat("pointLights[2].quadratic", L2.Quadratic);
+		//materialSinTexturaShader->setVec3("pointLights[2].power", L2.Power);
 
-		// point light 4
-		materialSinTexturaShader->setVec3("pointLights[3].position", L3.Position);
-		materialSinTexturaShader->setVec3("pointLights[3].ambient", L3.Ambient);
-		materialSinTexturaShader->setVec3("pointLights[3].diffuse", L3.Diffuse);
-		materialSinTexturaShader->setVec3("pointLights[3].specular", L3.Specular);
-		materialSinTexturaShader->setFloat("pointLights[3].constant", L3.Constant);
-		materialSinTexturaShader->setFloat("pointLights[3].linear", L3.Linear);
-		materialSinTexturaShader->setFloat("pointLights[3].quadratic", L3.Quadratic);
-		materialSinTexturaShader->setVec3("pointLights[3].power", L3.Power);
+		//// point light 4
+		//materialSinTexturaShader->setVec3("pointLights[3].position", L3.Position);
+		//materialSinTexturaShader->setVec3("pointLights[3].ambient", L3.Ambient);
+		//materialSinTexturaShader->setVec3("pointLights[3].diffuse", L3.Diffuse);
+		//materialSinTexturaShader->setVec3("pointLights[3].specular", L3.Specular);
+		//materialSinTexturaShader->setFloat("pointLights[3].constant", L3.Constant);
+		//materialSinTexturaShader->setFloat("pointLights[3].linear", L3.Linear);
+		//materialSinTexturaShader->setFloat("pointLights[3].quadratic", L3.Quadratic);
+		//materialSinTexturaShader->setVec3("pointLights[3].power", L3.Power);
 		
 		// Posición de la camara
 		materialSinTexturaShader->setVec3("viewPos", camera.Position);
@@ -567,7 +624,7 @@ bool Update() {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		
+		/*
 		// Piso de prueba
 		Material m1;
 		materialSinTexturaShader->setVec4("MaterialAmbientColor", m1.ambient);
@@ -578,7 +635,7 @@ bool Update() {
 		Floor.Draw(materialSinTexturaShader);*/
 
 		// Propiedades materiales del Barco
-		/*
+		
 		// Canons
 		Material MCanons;
 		MCanons.diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
@@ -927,7 +984,7 @@ bool Update() {
 		materialSinTexturaShader->setFloat("transparency", MMelena.transparency);
 		materialSinTexturaShader->setInt("shininess", 20);
 		Melena->Draw(*materialSinTexturaShader);
-		*/
+		
 		// cubo de luz
 		/*glm::mat4 cuboLuzM = glm::mat4(1.0f);
 		cuboLuzM = glm::translate(cuboLuzM, LuzPosition);
@@ -998,12 +1055,12 @@ bool Update() {
 		// Cubemap
 		vector<std::string> faces
 		{
-			"models/CubeMapFondo/Right.jpg",
-			"models/CubeMapFondo/Left.jpg",
-			"models/CubeMapFondo/Up.jpg",
-			"models/CubeMapFondo/Down.jpg",
-			"models/CubeMapFondo/Front.jpg",
-			"models/CubeMapFondo/Back.jpg"
+			"models/CubeMapFondo/posx.png",
+			"models/CubeMapFondo/negx.png",
+			"models/CubeMapFondo/posy.png",
+			"models/CubeMapFondo/negy.png",
+			"models/CubeMapFondo/posz.png",
+			"models/CubeMapFondo/negz.png"
 		};
 		unsigned int cubemapTexture = loadCubemap(faces);
 		// Activamos el shader estático
@@ -1029,7 +1086,7 @@ bool Update() {
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 
 		Vidrio->Draw(*fresnelShader);
-		//VentanaPuertaSinMarco->Draw(*fresnelShader);
+		VentanaPuertaSinMarco->Draw(*fresnelShader);
 
 		glUseProgram(0);
 	}
