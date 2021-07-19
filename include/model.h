@@ -193,13 +193,14 @@ private:
 		filename = path;
         // retrieve the directory path of the filepath
         directory = path.substr(0, path.find_last_of('/'));
-
+		
 		aiMatrix4x4 inverseTransform = scene->mRootNode->mTransformation;
 		inverseTransform.Inverse();
 		m_GlobalInverseTransform = aiMatrix4x4ToGlm(inverseTransform);
-
+		
         // process ASSIMP's root node recursively
         processNode(scene->mRootNode, scene);
+		
     }
 
 	void processNode(aiNode *node, float time){
