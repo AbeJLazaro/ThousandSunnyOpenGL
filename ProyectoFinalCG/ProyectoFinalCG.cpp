@@ -154,7 +154,9 @@ Model* FondoCara;
 Model* Huesos;
 Model* FondoOjos;
 Model* Melena;
-Model* Zoro1;
+// Animaciones
+Model* Zoro;
+Model* Robin;
 // Fresnel
 Model* Vidrio;
 Model* VentanaPuertaSinMarco;
@@ -168,7 +170,8 @@ Model* cube; // sirve para visualizar la posición de las luces
 #define MAX_RIGGING_BONES 100
 
 // Pose inicial del modelo
-glm::mat4 gBones[MAX_RIGGING_BONES];
+glm::mat4 ZoroBones[MAX_RIGGING_BONES];
+glm::mat4 RobinBones[MAX_RIGGING_BONES];
 
 float fps = 0;
 int keys = 0;
@@ -250,11 +253,12 @@ bool Start() {
 	}
 
 	// time, arrays
-	Zoro1->SetPose(0.0f, gBones, animationType);
-
-	fps = (float)Zoro1->getFramerate();
-	keys = (int)Zoro1->getNumFrames();
-
+	Zoro->SetPose(0.0f, ZoroBones, animationType);
+	fps = (float)Zoro->getFramerate();
+	keys = (int)Zoro->getNumFrames();
+	Robin->SetPose(0.0f, RobinBones, animationType);
+	fps = (float)Robin->getFramerate();
+	keys = (int)Robin->getNumFrames();
 	return true;
 }
 
@@ -354,13 +358,11 @@ bool InicializacionModelos() {
 			cout << "Error loading BarcoBaseTextura Model." << endl;
 			return false;
 		}
-		
 		BarcoCostado = new Model("models/Sunny/BarcoCostado.fbx");
 		if (BarcoCostado == nullptr) {
 			cout << "Error loading BarcoCostado Model." << endl;
 			return false;
 		}
-		
 		Pasto = new Model("models/Sunny/Pasto.fbx");
 		if (Pasto == nullptr) {
 			cout << "Error loading Pasto Model." << endl;
@@ -503,9 +505,14 @@ bool InicializacionModelos() {
 	}
 
 	// Objetos animados
-	Zoro1 = new Model("models/Sunny/Animaciones/Zoro.fbx");
-	if (Zoro1 == nullptr) {
-		cout << "Error loading Zoro1 Model." << endl;
+	Zoro = new Model("models/Sunny/Animaciones/Zoro.fbx");
+	if (Zoro == nullptr) {
+		cout << "Error loading Zoro Model." << endl;
+		return false;
+	}
+	Robin = new Model("models/Sunny/Animaciones/Robin.fbx");
+	if (Robin == nullptr) {
+		cout << "Error loading Robin Model." << endl;
 		return false;
 	}
 
@@ -1089,7 +1096,7 @@ void MaterialesConTexturasVariasLuces() {
 	materialConTexturaVariasLucesShader->setInt("shininess", 10);
 	Pasto->Draw(*materialConTexturaVariasLucesShader);
 
-	Material MPisoMadera; 
+	Material MPisoMadera;
 	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MPisoMadera.ambient);
 	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MPisoMadera.diffuse);
 	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MPisoMadera.specular);
@@ -1253,7 +1260,8 @@ void MaterialesAnimadosVariasLuces() {
 			animationCount = 0;
 		}
 		// Configuración de la pose en el instante t
-		Zoro1->SetPose((float)animationCount, gBones, animationType);
+		Zoro->SetPose((float)animationCount, ZoroBones, animationType);
+		Robin->SetPose((float)animationCount, RobinBones, animationType);
 		elapsedTime = 0.0f;
 	}
 
@@ -1272,8 +1280,6 @@ void MaterialesAnimadosVariasLuces() {
 	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));	// Es muy grande el cubo
 	animados->setMat4("model", model);
-
-	animados->setMat4("gBones", MAX_RIGGING_BONES, gBones);
 
 	// Propiedades de la luz
 
@@ -1335,14 +1341,26 @@ void MaterialesAnimadosVariasLuces() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Fondo
-	Material MZoro1;
-	animados->setVec4("MaterialAmbientColor", MZoro1.ambient);
-	animados->setVec4("MaterialDiffuseColor", MZoro1.diffuse);
-	animados->setVec4("MaterialSpecularColor", MZoro1.specular);
-	animados->setFloat("transparency", MZoro1.transparency);
+
+	// Zoro
+	animados->setMat4("gBones", MAX_RIGGING_BONES, ZoroBones);
+	Material MZoro;
+	animados->setVec4("MaterialAmbientColor", MZoro.ambient);
+	animados->setVec4("MaterialDiffuseColor", MZoro.diffuse);
+	animados->setVec4("MaterialSpecularColor", MZoro.specular);
+	animados->setFloat("transparency", MZoro.transparency);
 	animados->setInt("shininess", 1);
-	Zoro1->Draw(*animados);
+	Zoro->Draw(*animados);
+
+	// Robin
+	animados->setMat4("gBones", MAX_RIGGING_BONES, RobinBones);
+	Material MRobin;
+	animados->setVec4("MaterialAmbientColor", MRobin.ambient);
+	animados->setVec4("MaterialDiffuseColor", MRobin.diffuse);
+	animados->setVec4("MaterialSpecularColor", MRobin.specular);
+	animados->setFloat("transparency", MRobin.transparency);
+	animados->setInt("shininess", 1);
+	Robin->Draw(*animados);
 
 	glUseProgram(0);
 }
@@ -1473,7 +1491,7 @@ void processInput(GLFWwindow* window)
 	//if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	// Zoro1 movement
+	// Zoro movement
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
