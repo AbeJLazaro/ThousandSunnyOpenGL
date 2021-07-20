@@ -42,6 +42,8 @@ void MaterialesSinTexturaUnaLuz();
 void MaterialesSinTexturaVariasLuces();
 void MaterialesSinTexturaFresnel();
 void MaterialesConTexturasVariasLuces();
+void MaterialesAnimadosVariasLuces();
+void DibujaFondo();
 
 // Definición de callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -171,6 +173,7 @@ glm::mat4 gBones[MAX_RIGGING_BONES];
 float fps = 0;
 int keys = 0;
 int animationCount = 0;
+int animationType = 0;
 
 
 // Ciclo main
@@ -247,7 +250,7 @@ bool Start() {
 	}
 
 	// time, arrays
-	Zoro1->SetPose(0.0f, gBones);
+	Zoro1->SetPose(0.0f, gBones, animationType);
 
 	fps = (float)Zoro1->getFramerate();
 	keys = (int)Zoro1->getNumFrames();
@@ -272,12 +275,12 @@ bool InicializacionShaders() {
 		cout << "Error creating shaders." << endl;
 		return false;
 	}
-	animados = new Shader("shaders/pruebas3.vs", "shaders/pruebas3.fs");
+	animados = new Shader("shaders/animados.vs", "shaders/animados.fs");
 	if (animados == nullptr) {
 		cout << "Error creating shaders." << endl;
 		return false;
 	}
-	fondoShader = new Shader("shaders/pruebas2tex.vs", "shaders/pruebas2tex.fs");
+	fondoShader = new Shader("shaders/fondo.vs", "shaders/fondo.fs");
 	if (fondoShader == nullptr) {
 		cout << "Error creating shaders." << endl;
 		return false;
@@ -296,7 +299,7 @@ bool InicializacionModelos() {
 	// Materiales Barco Exterior Phong 
 
 	{
-		/*Canons = new Model("models/Sunny/Canons.fbx");
+		Canons = new Model("models/Sunny/Canons.fbx");
 		if (Canons == nullptr) {
 			cout << "Error loading Canons Model." << endl;
 			return false;
@@ -345,7 +348,7 @@ bool InicializacionModelos() {
 		if (BarcoBase == nullptr) {
 			cout << "Error loading BarcoBase Model." << endl;
 			return false;
-		}*/
+		}
 		BarcoBaseTextura = new Model("models/Sunny/BarcoBaseTextura.fbx");
 		if (BarcoBaseTextura == nullptr) {
 			cout << "Error loading BarcoBaseTextura Model." << endl;
@@ -363,17 +366,17 @@ bool InicializacionModelos() {
 			cout << "Error loading Pasto Model." << endl;
 			return false;
 		}
-		/*Paredes1 = new Model("models/Sunny/Paredes1.fbx");
+		Paredes1 = new Model("models/Sunny/Paredes1.fbx");
 		if (Paredes1 == nullptr) {
 			cout << "Error loading Paredes1 Model." << endl;
 			return false;
-		}*/
+		}
 		PisoMadera = new Model("models/Sunny/PisoMadera.fbx");
 		if (PisoMadera == nullptr) {
 			cout << "Error loading PisoMadera Model." << endl;
 			return false;
 		}
-		/*BarandalesYLaterales = new Model("models/Sunny/BarandalesYLaterales.fbx");
+		BarandalesYLaterales = new Model("models/Sunny/BarandalesYLaterales.fbx");
 		if (BarandalesYLaterales == nullptr) {
 			cout << "Error loading BarandalesYLaterales Model." << endl;
 			return false;
@@ -442,13 +445,13 @@ bool InicializacionModelos() {
 		if (BaseCuartoMastil == nullptr) {
 			cout << "Error loading BaseCuartoMastil Model." << endl;
 			return false;
-		}*/
+		}
 		MaderaArbol = new Model("models/Sunny/MaderaArbol.fbx");
 		if (MaderaArbol == nullptr) {
 			cout << "Error loading MaderaArbol Model." << endl;
 			return false;
 		}
-		/*Hojas = new Model("models/Sunny/Hojas.fbx");
+		Hojas = new Model("models/Sunny/Hojas.fbx");
 		if (Hojas == nullptr) {
 			cout << "Error loading Hojas Model." << endl;
 			return false;
@@ -477,7 +480,7 @@ bool InicializacionModelos() {
 		if (Melena == nullptr) {
 			cout << "Error loading Melena Model." << endl;
 			return false;
-		}*/
+		}
 	}
 
 	/*
@@ -500,18 +503,18 @@ bool InicializacionModelos() {
 	}
 
 	// Objetos animados
-	Zoro1 = new Model("models/Sunny/Animaciones/ZoroSaludando.fbx");
+	Zoro1 = new Model("models/Sunny/Animaciones/Zoro.fbx");
 	if (Zoro1 == nullptr) {
 		cout << "Error loading Zoro1 Model." << endl;
 		return false;
 	}
 
-	//// Fondo Cubo 
-	//Fondo = new Model("models/Sunny/CubeMap.fbx");
-	//if (Fondo == nullptr) {
-	//	cout << "Error loading Fondo Model." << endl;
-	//	return false;
-	//}
+	// Fondo Cubo 
+	Fondo = new Model("models/Sunny/CubeMap.fbx");
+	if (Fondo == nullptr) {
+		cout << "Error loading Fondo Model." << endl;
+		return false;
+	}
 	/*
 	cube = new Model("models/materials/cube.fbx");
 	if (cube == nullptr) {
@@ -1079,8 +1082,6 @@ void MaterialesConTexturasVariasLuces() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Material MPasto;
-	/*MPasto.diffuse = glm::vec4(0.016f, 0.336f, 0.0f, 1.0f);
-	MPasto.specular = glm::vec4(0.016f, 0.336f, 0.0f, 1.0f);*/
 	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MPasto.ambient);
 	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MPasto.diffuse);
 	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MPasto.specular);
@@ -1088,9 +1089,7 @@ void MaterialesConTexturasVariasLuces() {
 	materialConTexturaVariasLucesShader->setInt("shininess", 10);
 	Pasto->Draw(*materialConTexturaVariasLucesShader);
 
-	Material MPisoMadera; //***************************************************************************************** checar
-	/*MPisoMadera.diffuse = glm::vec4(0.119f, 0.029f, 0.06f, 1.0f);
-	MPisoMadera.specular = glm::vec4(0.119f, 0.029f, 0.06f, 1.0f);*/
+	Material MPisoMadera; 
 	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MPisoMadera.ambient);
 	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MPisoMadera.diffuse);
 	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MPisoMadera.specular);
@@ -1099,8 +1098,6 @@ void MaterialesConTexturasVariasLuces() {
 	PisoMadera->Draw(*materialConTexturaVariasLucesShader);
 
 	Material MMaderaArbol;
-	/*MMaderaArbol.diffuse = glm::vec4(0.05f, 0.012f, 0.003f, 1.0f);
-	MMaderaArbol.specular = glm::vec4(0.05f, 0.012f, 0.003f, 1.0f);*/
 	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MMaderaArbol.ambient);
 	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MMaderaArbol.diffuse);
 	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MMaderaArbol.specular);
@@ -1109,8 +1106,6 @@ void MaterialesConTexturasVariasLuces() {
 	MaderaArbol->Draw(*materialConTexturaVariasLucesShader);
 
 	Material MBarcoBaseTextura;
-	/*MBarcoBaseTextura.diffuse = glm::vec4(0.078f, 0.049f, 0.033f, 1.0f);
-	MBarcoBaseTextura.specular = glm::vec4(0.078f, 0.049f, 0.033f, 1.0f);*/
 	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MBarcoBaseTextura.ambient);
 	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MBarcoBaseTextura.diffuse);
 	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MBarcoBaseTextura.specular);
@@ -1119,14 +1114,85 @@ void MaterialesConTexturasVariasLuces() {
 	BarcoBaseTextura->Draw(*materialConTexturaVariasLucesShader);
 
 	Material MBarcoCostado;
-	/*MBarcoCostado.diffuse = glm::vec4(0.078f, 0.049f, 0.033f, 1.0f);
-	MBarcoCostado.specular = glm::vec4(0.078f, 0.049f, 0.033f, 1.0f);*/
 	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MBarcoCostado.ambient);
 	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MBarcoCostado.diffuse);
 	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MBarcoCostado.specular);
 	materialConTexturaVariasLucesShader->setFloat("transparency", MBarcoCostado.transparency);
 	materialConTexturaVariasLucesShader->setInt("shininess", 50);
 	BarcoCostado->Draw(*materialConTexturaVariasLucesShader);
+
+	glUseProgram(0);
+}
+
+// Dibujo del fondo
+void DibujaFondo() {
+	// Activamos el shader estático
+	fondoShader->use();
+
+	// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+	fondoShader->setMat4("projection", projection);
+	fondoShader->setMat4("view", view);
+
+	// Aplicamos transformaciones del modelo
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // Trasladar al centro de la escena
+	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));	// escala para los objetos que sean muy grandes
+	fondoShader->setMat4("model", model);
+	// Propiedades de la luz
+	// Luz direccional posx
+	fondoShader->setVec3("dirLight[0].direction", posx.Direction);
+	fondoShader->setVec3("dirLight[0].ambient", posx.Ambient);
+	fondoShader->setVec3("dirLight[0].diffuse", posx.Diffuse);
+	fondoShader->setVec3("dirLight[0].specular", posx.Specular);
+	fondoShader->setVec3("dirLight[0].power", posx.Power);
+	// Luz direccional negx
+	fondoShader->setVec3("dirLight[1].direction", negx.Direction);
+	fondoShader->setVec3("dirLight[1].ambient", negx.Ambient);
+	fondoShader->setVec3("dirLight[1].diffuse", negx.Diffuse);
+	fondoShader->setVec3("dirLight[1].specular", negx.Specular);
+	fondoShader->setVec3("dirLight[1].power", negx.Power);
+	// Luz direccional posy
+	fondoShader->setVec3("dirLight[2].direction", posy.Direction);
+	fondoShader->setVec3("dirLight[2].ambient", posy.Ambient);
+	fondoShader->setVec3("dirLight[2].diffuse", posy.Diffuse);
+	fondoShader->setVec3("dirLight[2].specular", posy.Specular);
+	fondoShader->setVec3("dirLight[2].power", posy.Power);
+	//// Luz direccional negy
+	fondoShader->setVec3("dirLight[3].direction", negy.Direction);
+	fondoShader->setVec3("dirLight[3].ambient", negy.Ambient);
+	fondoShader->setVec3("dirLight[3].diffuse", negy.Diffuse);
+	fondoShader->setVec3("dirLight[3].specular", negy.Specular);
+	fondoShader->setVec3("dirLight[3].power", negy.Power);
+	// Luz direccional posz
+	fondoShader->setVec3("dirLight[4].direction", posz.Direction);
+	fondoShader->setVec3("dirLight[4].ambient", posz.Ambient);
+	fondoShader->setVec3("dirLight[4].diffuse", posz.Diffuse);
+	fondoShader->setVec3("dirLight[4].specular", posz.Specular);
+	fondoShader->setVec3("dirLight[4].power", posz.Power);
+	// Luz direccional negz
+	fondoShader->setVec3("dirLight[5].direction", negz.Direction);
+	fondoShader->setVec3("dirLight[5].ambient", negz.Ambient);
+	fondoShader->setVec3("dirLight[5].diffuse", negz.Diffuse);
+	fondoShader->setVec3("dirLight[5].specular", negz.Specular);
+	fondoShader->setVec3("dirLight[5].power", negz.Power);
+
+	// Posición de la camara
+	fondoShader->setVec3("viewPos", camera.Position);
+
+	// Habilitar blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	Material MFondo;
+	fondoShader->setVec4("MaterialAmbientColor", MFondo.ambient);
+	fondoShader->setVec4("MaterialDiffuseColor", MFondo.diffuse);
+	fondoShader->setVec4("MaterialSpecularColor", MFondo.specular);
+	fondoShader->setFloat("transparency", MFondo.transparency);
+	fondoShader->setInt("shininess", 50);
+	Fondo->Draw(*fondoShader);
 
 	glUseProgram(0);
 }
@@ -1172,9 +1238,8 @@ void MaterialesSinTexturaFresnel() {
 	glUseProgram(0);
 }
 
-// Dibujo de los modelos en la escena, transformaciones
-bool Update() {
-
+// Dibujo de animaciones con varias luces direccionales
+void MaterialesAnimadosVariasLuces() {
 	// Cálculo del framerate
 	float currentFrame = (float)glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
@@ -1188,9 +1253,102 @@ bool Update() {
 			animationCount = 0;
 		}
 		// Configuración de la pose en el instante t
-		Zoro1->SetPose((float)animationCount, gBones);
+		Zoro1->SetPose((float)animationCount, gBones, animationType);
 		elapsedTime = 0.0f;
 	}
+
+	// Activamos el shader dinámico
+	animados->use();
+
+	// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+	animados->setMat4("projection", projection);
+	animados->setMat4("view", view);
+
+	// Aplicamos transformaciones del modelo
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // Pasar al centro de la escena
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));	// Es muy grande el cubo
+	animados->setMat4("model", model);
+
+	animados->setMat4("gBones", MAX_RIGGING_BONES, gBones);
+
+	// Propiedades de la luz
+
+	// Luz direccional
+
+	// Luz direccional posx
+	animados->setVec3("dirLight[0].direction", posx.Direction);
+	animados->setVec3("dirLight[0].ambient", posx.Ambient);
+	animados->setVec3("dirLight[0].diffuse", posx.Diffuse);
+	animados->setVec3("dirLight[0].specular", posx.Specular);
+	animados->setVec3("dirLight[0].power", posx.Power);
+	// Luz direccional negx
+	animados->setVec3("dirLight[1].direction", negx.Direction);
+	animados->setVec3("dirLight[1].ambient", negx.Ambient);
+	animados->setVec3("dirLight[1].diffuse", negx.Diffuse);
+	animados->setVec3("dirLight[1].specular", negx.Specular);
+	animados->setVec3("dirLight[1].power", negx.Power);
+	// Luz direccional posy
+	/*materialSinTexturaVariasLucesShader->setVec3("dirLight[2].direction", posy.Direction);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].ambient", posy.Ambient);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].diffuse", posy.Diffuse);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].specular", posy.Specular);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].power", posy.Power);*/
+	// Luz direccional negy
+	animados->setVec3("dirLight[2].direction", negy.Direction);
+	animados->setVec3("dirLight[2].ambient", negy.Ambient);
+	animados->setVec3("dirLight[2].diffuse", negy.Diffuse);
+	animados->setVec3("dirLight[2].specular", negy.Specular);
+	animados->setVec3("dirLight[2].power", negy.Power);
+	// Luz direccional posz
+	animados->setVec3("dirLight[3].direction", posz.Direction);
+	animados->setVec3("dirLight[3].ambient", posz.Ambient);
+	animados->setVec3("dirLight[3].diffuse", posz.Diffuse);
+	animados->setVec3("dirLight[3].specular", posz.Specular);
+	animados->setVec3("dirLight[3].power", posz.Power);
+	// Luz direccional negz
+	animados->setVec3("dirLight[4].direction", negz.Direction);
+	animados->setVec3("dirLight[4].ambient", negz.Ambient);
+	animados->setVec3("dirLight[4].diffuse", negz.Diffuse);
+	animados->setVec3("dirLight[4].specular", negz.Specular);
+	animados->setVec3("dirLight[4].power", negz.Power);
+
+	// Luz de linterna
+	animados->setVec3("spotLight.position", camera.Position);
+	animados->setVec3("spotLight.direction", camera.Front);
+	animados->setVec3("spotLight.ambient", Lintern.Ambient);
+	animados->setVec3("spotLight.diffuse", Lintern.Diffuse);
+	animados->setVec3("spotLight.specular", Lintern.Specular);
+	animados->setFloat("spotLight.constant", Lintern.Constant);
+	animados->setFloat("spotLight.linear", Lintern.Linear);
+	animados->setFloat("spotLight.quadratic", Lintern.Quadratic);
+	animados->setFloat("spotLight.cutOff", Lintern.CutOff);
+	animados->setFloat("spotLight.outerCutOff", Lintern.OuterCutOff);
+
+	// Posición de la camara
+	animados->setVec3("viewPos", camera.Position);
+
+	// Enable blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Fondo
+	Material MZoro1;
+	animados->setVec4("MaterialAmbientColor", MZoro1.ambient);
+	animados->setVec4("MaterialDiffuseColor", MZoro1.diffuse);
+	animados->setVec4("MaterialSpecularColor", MZoro1.specular);
+	animados->setFloat("transparency", MZoro1.transparency);
+	animados->setInt("shininess", 1);
+	Zoro1->Draw(*animados);
+
+	glUseProgram(0);
+}
+
+// Dibujo de los modelos en la escena, transformaciones
+bool Update() {
 
 	// Procesa la entrada del teclado o mouse
 	processInput(window);
@@ -1224,18 +1382,18 @@ bool Update() {
 	//		Materiales sin textura
 
 	//			Materiales con una sola luz direccional (metales y hojas)
-	//MaterialesSinTexturaUnaLuz();
+	MaterialesSinTexturaUnaLuz();
 
 	//			Materiales con 6 luces posicionales
-	//MaterialesSinTexturaVariasLuces();
+	MaterialesSinTexturaVariasLuces();
 
 	//			Objetos Sin textura con Iluminación de Fresnel
-	//MaterialesSinTexturaFresnel();
+	MaterialesSinTexturaFresnel();
 
 	//		Materiales Con textura
 	//			Materiales con varias luces direccionales
 	MaterialesConTexturasVariasLuces();
-
+	DibujaFondo();
 	// Puntos de luz
 	/*
 	// point light 1
@@ -1283,104 +1441,7 @@ bool Update() {
 	// 	   Materiales con textura
 	
 	//			Materiales con textura animados phong
-	{
-		// Activamos el shader dinámico
-		animados->use();
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.GetViewMatrix();
-		animados->setMat4("projection", projection);
-		animados->setMat4("view", view);
-
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // Pasar al centro de la escena
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));	// Es muy grande el cubo
-		animados->setMat4("model", model);
-
-		animados->setMat4("gBones", MAX_RIGGING_BONES, gBones);
-
-		// Propiedades de la luz
-
-		// Luz direccional
-		/*animados->setVec3("dirLight[0].direction", sol.Direction);
-		animados->setVec3("dirLight[0].ambient", sol.Ambient);
-		animados->setVec3("dirLight[0].diffuse", sol.Diffuse);
-		animados->setVec3("dirLight[0].specular", sol.Specular);
-		animados->setVec3("dirLight[0].power", sol.Power);*/
-
-		// Luz direccional posx
-		animados->setVec3("dirLight[0].direction", posx.Direction);
-		animados->setVec3("dirLight[0].ambient", posx.Ambient);
-		animados->setVec3("dirLight[0].diffuse", posx.Diffuse);
-		animados->setVec3("dirLight[0].specular", posx.Specular);
-		animados->setVec3("dirLight[0].power", posx.Power);
-		// Luz direccional negx
-		animados->setVec3("dirLight[1].direction", negx.Direction);
-		animados->setVec3("dirLight[1].ambient", negx.Ambient);
-		animados->setVec3("dirLight[1].diffuse", negx.Diffuse);
-		animados->setVec3("dirLight[1].specular", negx.Specular);
-		animados->setVec3("dirLight[1].power", negx.Power);
-		// Luz direccional posy
-		/*materialSinTexturaVariasLucesShader->setVec3("dirLight[2].direction", posy.Direction);
-		materialSinTexturaVariasLucesShader->setVec3("dirLight[2].ambient", posy.Ambient);
-		materialSinTexturaVariasLucesShader->setVec3("dirLight[2].diffuse", posy.Diffuse);
-		materialSinTexturaVariasLucesShader->setVec3("dirLight[2].specular", posy.Specular);
-		materialSinTexturaVariasLucesShader->setVec3("dirLight[2].power", posy.Power);*/
-		//// Luz direccional negy
-		animados->setVec3("dirLight[2].direction", negy.Direction);
-		animados->setVec3("dirLight[2].ambient", negy.Ambient);
-		animados->setVec3("dirLight[2].diffuse", negy.Diffuse);
-		animados->setVec3("dirLight[2].specular", negy.Specular);
-		animados->setVec3("dirLight[2].power", negy.Power);
-		// Luz direccional posz
-		animados->setVec3("dirLight[3].direction", posz.Direction);
-		animados->setVec3("dirLight[3].ambient", posz.Ambient);
-		animados->setVec3("dirLight[3].diffuse", posz.Diffuse);
-		animados->setVec3("dirLight[3].specular", posz.Specular);
-		animados->setVec3("dirLight[3].power", posz.Power);
-		// Luz direccional negz
-		animados->setVec3("dirLight[4].direction", negz.Direction);
-		animados->setVec3("dirLight[4].ambient", negz.Ambient);
-		animados->setVec3("dirLight[4].diffuse", negz.Diffuse);
-		animados->setVec3("dirLight[4].specular", negz.Specular);
-		animados->setVec3("dirLight[4].power", negz.Power);
-
-		// Luz de linterna
-		animados->setVec3("spotLight.position", camera.Position);
-		animados->setVec3("spotLight.direction", camera.Front);
-		animados->setVec3("spotLight.ambient", Lintern.Ambient);
-		animados->setVec3("spotLight.diffuse", Lintern.Diffuse);
-		animados->setVec3("spotLight.specular", Lintern.Specular);
-		animados->setFloat("spotLight.constant", Lintern.Constant);
-		animados->setFloat("spotLight.linear", Lintern.Linear);
-		animados->setFloat("spotLight.quadratic", Lintern.Quadratic);
-		animados->setFloat("spotLight.cutOff", Lintern.CutOff);
-		animados->setFloat("spotLight.outerCutOff", Lintern.OuterCutOff);
-
-		// Posición de la camara
-		animados->setVec3("viewPos", camera.Position);
-
-		// Enable blending
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Fondo
-		Material MZoro1;
-		animados->setVec4("MaterialAmbientColor", MZoro1.ambient);
-		animados->setVec4("MaterialDiffuseColor", MZoro1.diffuse);
-		animados->setVec4("MaterialSpecularColor", MZoro1.specular);
-		animados->setFloat("transparency", MZoro1.transparency);
-		animados->setInt("shininess", 1);
-		Zoro1->Draw(*animados);
-
-		glUseProgram(0);
-
-	}
+	MaterialesAnimadosVariasLuces();
 
 	// glfw: swap buffers 
 	/* Swap front and back buffers */
@@ -1437,9 +1498,13 @@ void processInput(GLFWwindow* window)
 	}
 
 
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+	{
+		animationType = 0;
 	}
-	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+	{
+		animationType = 1;
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {

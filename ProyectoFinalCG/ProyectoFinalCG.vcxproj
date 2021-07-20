@@ -82,6 +82,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\..\..\..\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -134,12 +135,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\glm;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\glfw\include;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\glad\include;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\assimp\include;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\glfw\lib\Debug;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\glad\lib\Debug;C:\Users\Usuario\Desktop\OctavoSemestre\ComputacionGrafica\ThousandSunnyOpenGL\deps\assimp\lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;assimp-vc142-mtd.lib;glad.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
