@@ -40,10 +40,12 @@ bool InicializacionShaders();
 bool InicializacionModelos();
 void MaterialesSinTexturaUnaLuz();
 void MaterialesSinTexturaVariasLuces();
+void MaterialesSinTexturaCocina();
 void MaterialesSinTexturaFresnel();
 void MaterialesConTexturasVariasLuces();
 void MaterialesAnimadosVariasLuces();
 void DibujaFondo();
+unsigned int loadCubemap(vector<std::string> faces);
 
 // Definición de callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -51,17 +53,15 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
-unsigned int loadCubemap(vector<std::string> faces);
-
 // Tamaño en pixeles de la ventana
 const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
 // Definición de cámara (posición en XYZ)
-Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
+Camera camera(glm::vec3(0.0f, 20.0f, 70.0f));
 
 // Definición de proyeccion y vista
-// Proyecciones y vistas
+// Proyección y vista
 glm::mat4 projection;
 glm::mat4 view;
 
@@ -69,20 +69,6 @@ glm::mat4 view;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
-
-// Variables para la velocidad de reproducción
-// de la animación
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-float elapsedTime = 0.0f;
-
-glm::vec3 position(0.0f, 0.0f, 0.0f);
-
-// Variables para el control del modelo
-float modelRotation = 0.0f;
-
-// Variables para las pruebas
-glm::vec3 LuzPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
 // Luces 
 // Luz direccional
@@ -114,10 +100,8 @@ Shader* fresnelShader;
 Shader* animados;	
 
 // Modelos
-// Piso de prueba
-Model* Floor;
 // Modelos del barco
-// Phong
+// phong
 Model* Canons;
 Model* MarcoOroPuerta;
 Model* MaderaPuerta;
@@ -128,6 +112,7 @@ Model* FondoCanons;
 Model* RejillaVentana;
 Model* MarcoCostado;
 Model* BarcoBase;
+Model* Timon;
 Model* BarcoBaseTextura;
 Model* BarcoCostado;
 Model* Pasto;
@@ -154,30 +139,85 @@ Model* FondoCara;
 Model* Huesos;
 Model* FondoOjos;
 Model* Melena;
-// Animaciones
-Model* Zoro;
-Model* Robin;
 // Fresnel
 Model* Vidrio;
 Model* VentanaPuertaSinMarco;
-
+// Modelos Cocina 
+// Phong
+Model* BarraCuerpo;
+Model* BarraMesa;
+Model* BarraPiso;
+Model* BaseSilla;
+Model* Campana1;
+Model* Campana2;
+Model* CampanaFondo;
+Model* CampanaTope;
+Model* EstufaCuerpo;
+Model* EstufaIntegral;
+Model* EstufaIntegralMarco;
+Model* EstufaMesa;
+Model* EstufaPiso;
+Model* Extractor;
+Model* ExtractorFondo;
+Model* ExtractorMarco;
+Model* MangoEstufa;
+Model* Mantel;
+Model* Mesa;
+Model* Mesita;
+Model* ParedesCocina;
+Model* ParedMadera;
+Model* PisoAjedrez;
+Model* PisoMadera1;
+Model* Refri;
+Model* RefriMarco;
+Model* Sarten;
+Model* Silla;
+Model* SillaInterior;
+Model* Soffa1;
+Model* Soffa2;
+Model* TechoCocina;
+Model* TransicionTechoCocina;
+Model* Tronco;
+Model* TroncoSaliente;
+Model* VentanaEstufa;
 // Modelo del fondo
 Model* Fondo;
 
-Model* cube; // sirve para visualizar la posición de las luces
-
+// Animaciones
+Model* Zoro;
+Model* Robin;
 // Máximo número de huesos: 100
 #define MAX_RIGGING_BONES 100
 
-// Pose inicial del modelo
+// Pose inicial de las animaciones
 glm::mat4 ZoroBones[MAX_RIGGING_BONES];
 glm::mat4 RobinBones[MAX_RIGGING_BONES];
 
 float fps = 0;
 int keys = 0;
 int animationCount = 0;
-int animationType = 0;
+int animationTypeZoro = 0;
+int animationTypeRobin = 0;
+// Variables para la velocidad de reproducción
+// de la animación
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+float elapsedTime = 0.0f;
 
+// Variables para el control de las animaciones
+
+glm::vec3 positionZoro(0.0f, 0.0f, 0.0f);
+glm::vec3 forwardViewZoro(0.0f, 0.0f, 1.0f);
+float     scaleVZoro = 0.005f;
+float     rotateCharacterZoro = 0.0f;
+
+glm::vec3 positionRobin(0.0f, 0.0f, 0.0f);
+glm::vec3 forwardViewRobin(0.0f, 0.0f, 1.0f);
+float     scaleVRobin = 0.005f;
+float     rotateCharacterRobin = 0.0f;
+
+// Variables para mover el timon
+float timonRotation = 0.0f;
 
 // Ciclo main
 int main(void) {
@@ -253,10 +293,10 @@ bool Start() {
 	}
 
 	// time, arrays
-	Zoro->SetPose(0.0f, ZoroBones, animationType);
+	Zoro->SetPose(0.0f, ZoroBones, animationTypeZoro);
 	fps = (float)Zoro->getFramerate();
 	keys = (int)Zoro->getNumFrames();
-	Robin->SetPose(0.0f, RobinBones, animationType);
+	Robin->SetPose(0.0f, RobinBones, animationTypeRobin);
 	fps = (float)Robin->getFramerate();
 	keys = (int)Robin->getNumFrames();
 	return true;
@@ -353,6 +393,11 @@ bool InicializacionModelos() {
 			cout << "Error loading BarcoBase Model." << endl;
 			return false;
 		}
+		Timon = new Model("models/Sunny/Timon.fbx");
+		if (Timon == nullptr) {
+			cout << "Error loading Timon Model." << endl;
+			return false;
+		}
 		BarcoBaseTextura = new Model("models/Sunny/BarcoBaseTextura.fbx");
 		if (BarcoBaseTextura == nullptr) {
 			cout << "Error loading BarcoBaseTextura Model." << endl;
@@ -386,11 +431,6 @@ bool InicializacionModelos() {
 		CintaInferior = new Model("models/Sunny/CintaInferior.fbx");
 		if (CintaInferior == nullptr) {
 			cout << "Error loading CintaInferior Model." << endl;
-			return false;
-		}
-		BotonesDorados = new Model("models/Sunny/BotonesDorados.fbx");
-		if (BotonesDorados == nullptr) {
-			cout << "Error loading BotonesDorados Model." << endl;
 			return false;
 		}
 		BandaSuperior = new Model("models/Sunny/BandaSuperior.fbx");
@@ -485,13 +525,6 @@ bool InicializacionModelos() {
 		}
 	}
 
-	/*
-	A = new Model("models/Sunny/A.fbx");
-	if (A == nullptr) {
-		cout << "Error loading A Model." << endl;
-		return false;
-	}*/
-
 	// Materiales Barco Exterior Fresnel
 	Vidrio = new Model("models/Sunny/Vidrio.fbx");
 	if (Vidrio == nullptr) {
@@ -503,7 +536,197 @@ bool InicializacionModelos() {
 		cout << "Error loading VentanaPuertaSinMarco Model." << endl;
 		return false;
 	}
-
+	BotonesDorados = new Model("models/Sunny/BotonesDorados.fbx");
+	if (BotonesDorados == nullptr) {
+		cout << "Error loading BotonesDorados Model." << endl;
+		return false;
+	}
+	
+	// Materiales Cocina phong
+	{
+		BarraCuerpo = new Model("models/Sunny/BarraCuerpo.fbx");
+		if (BarraCuerpo == nullptr) {
+			cout << "Error loading BarraCuerpo Model." << endl;
+			return false;
+		}
+		BarraMesa = new Model("models/Sunny/BarraMesa.fbx");
+		if (BarraMesa == nullptr) {
+			cout << "Error loading BarraMesa Model." << endl;
+			return false;
+		}
+		BarraPiso = new Model("models/Sunny/BarraPiso.fbx");
+		if (BarraPiso == nullptr) {
+			cout << "Error loading BarraPiso Model." << endl;
+			return false;
+		}
+		BaseSilla = new Model("models/Sunny/BaseSilla.fbx");
+		if (BaseSilla == nullptr) {
+			cout << "Error loading BaseSilla Model." << endl;
+			return false;
+		}
+		Campana1 = new Model("models/Sunny/Campana1.fbx");
+		if (Campana1 == nullptr) {
+			cout << "Error loading Campana1 Model." << endl;
+			return false;
+		}
+		Campana2 = new Model("models/Sunny/Campana2.fbx");
+		if (Campana2 == nullptr) {
+			cout << "Error loading Campana2 Model." << endl;
+			return false;
+		}
+		CampanaFondo = new Model("models/Sunny/CampanaFondo.fbx");
+		if (CampanaFondo == nullptr) {
+			cout << "Error loading CampanaFondo Model." << endl;
+			return false;
+		}
+		CampanaTope = new Model("models/Sunny/CampanaTope.fbx");
+		if (CampanaTope == nullptr) {
+			cout << "Error loading CampanaTope Model." << endl;
+			return false;
+		}
+		EstufaCuerpo = new Model("models/Sunny/EstufaCuerpo.fbx");
+		if (EstufaCuerpo == nullptr) {
+			cout << "Error loading EstufaCuerpo Model." << endl;
+			return false;
+		}
+		EstufaIntegral = new Model("models/Sunny/EstufaIntegral.fbx");
+		if (EstufaIntegral == nullptr) {
+			cout << "Error loading EstufaIntegral Model." << endl;
+			return false;
+		}
+		EstufaIntegralMarco = new Model("models/Sunny/EstufaIntegralMarco.fbx");
+		if (EstufaIntegralMarco == nullptr) {
+			cout << "Error loading EstufaIntegralMarco Model." << endl;
+			return false;
+		}
+		EstufaMesa = new Model("models/Sunny/EstufaMesa.fbx");
+		if (EstufaMesa == nullptr) {
+			cout << "Error loading EstufaMesa Model." << endl;
+			return false;
+		}
+		EstufaPiso = new Model("models/Sunny/EstufaPiso.fbx");
+		if (EstufaPiso == nullptr) {
+			cout << "Error loading EstufaPiso Model." << endl;
+			return false;
+		}
+		Extractor = new Model("models/Sunny/Extractor.fbx");
+		if (Extractor == nullptr) {
+			cout << "Error loading Extractor Model." << endl;
+			return false;
+		}
+		ExtractorFondo = new Model("models/Sunny/ExtractorFondo.fbx");
+		if (ExtractorFondo == nullptr) {
+			cout << "Error loading ExtractorFondo Model." << endl;
+			return false;
+		}
+		ExtractorMarco = new Model("models/Sunny/ExtractorMarco.fbx");
+		if (ExtractorMarco == nullptr) {
+			cout << "Error loading ExtractorMarco Model." << endl;
+			return false;
+		}
+		MangoEstufa = new Model("models/Sunny/MangoEstufa.fbx");
+		if (MangoEstufa == nullptr) {
+			cout << "Error loading MangoEstufa Model." << endl;
+			return false;
+		}
+		Mantel = new Model("models/Sunny/Mantel.fbx");
+		if (Mantel == nullptr) {
+			cout << "Error loading Mantel Model." << endl;
+			return false;
+		}
+		Mesa = new Model("models/Sunny/Mesa.fbx");
+		if (Mesa == nullptr) {
+			cout << "Error loading Mesa Model." << endl;
+			return false;
+		}
+		Mesita = new Model("models/Sunny/Mesita.fbx");
+		if (Mesita == nullptr) {
+			cout << "Error loading Mesita Model." << endl;
+			return false;
+		}
+		ParedesCocina = new Model("models/Sunny/ParedesCocina.fbx");
+		if (ParedesCocina == nullptr) {
+			cout << "Error loading ParedesCocina Model." << endl;
+			return false;
+		}
+		ParedMadera = new Model("models/Sunny/ParedMadera.fbx");
+		if (ParedMadera == nullptr) {
+			cout << "Error loading ParedMadera Model." << endl;
+			return false;
+		}
+		PisoAjedrez = new Model("models/Sunny/PisoAjedrez.fbx");
+		if (PisoAjedrez == nullptr) {
+			cout << "Error loading PisoAjedrez Model." << endl;
+			return false;
+		}
+		PisoMadera1 = new Model("models/Sunny/PisoMadera1.fbx");
+		if (PisoMadera1 == nullptr) {
+			cout << "Error loading PisoMadera1 Model." << endl;
+			return false;
+		}
+		Refri = new Model("models/Sunny/Refri.fbx");
+		if (Refri == nullptr) {
+			cout << "Error loading Refri Model." << endl;
+			return false;
+		}
+		RefriMarco = new Model("models/Sunny/RefriMarco.fbx");
+		if (RefriMarco == nullptr) {
+			cout << "Error loading RefriMarco Model." << endl;
+			return false;
+		}
+		Sarten = new Model("models/Sunny/Sarten.fbx");
+		if (Sarten == nullptr) {
+			cout << "Error loading Sarten Model." << endl;
+			return false;
+		}
+		Silla = new Model("models/Sunny/Silla.fbx");
+		if (Silla == nullptr) {
+			cout << "Error loading Silla Model." << endl;
+			return false;
+		}
+		SillaInterior = new Model("models/Sunny/SillaInterior.fbx");
+		if (SillaInterior == nullptr) {
+			cout << "Error loading SillaInterior Model." << endl;
+			return false;
+		}
+		Soffa1 = new Model("models/Sunny/Soffa1.fbx");
+		if (Soffa1 == nullptr) {
+			cout << "Error loading Soffa1 Model." << endl;
+			return false;
+		}
+		Soffa2 = new Model("models/Sunny/Soffa2.fbx");
+		if (Soffa2 == nullptr) {
+			cout << "Error loading Soffa2 Model." << endl;
+			return false;
+		}
+		TechoCocina = new Model("models/Sunny/TechoCocina.fbx");
+		if (TechoCocina == nullptr) {
+			cout << "Error loading TechoCocina Model." << endl;
+			return false;
+		}
+		TransicionTechoCocina = new Model("models/Sunny/TransicionTechoCocina.fbx");
+		if (TransicionTechoCocina == nullptr) {
+			cout << "Error loading TransicionTechoCocina Model." << endl;
+			return false;
+		}
+		Tronco = new Model("models/Sunny/Tronco.fbx");
+		if (Tronco == nullptr) {
+			cout << "Error loading Tronco Model." << endl;
+			return false;
+		}
+		TroncoSaliente = new Model("models/Sunny/TroncoSaliente.fbx");
+		if (TroncoSaliente == nullptr) {
+			cout << "Error loading TroncoSaliente Model." << endl;
+			return false;
+		}
+		VentanaEstufa = new Model("models/Sunny/VentanaEstufa.fbx");
+		if (VentanaEstufa == nullptr) {
+			cout << "Error loading VentanaEstufa Model." << endl;
+			return false;
+		}
+	}
+	
+	
 	// Objetos animados
 	Zoro = new Model("models/Sunny/Animaciones/Zoro.fbx");
 	if (Zoro == nullptr) {
@@ -522,12 +745,7 @@ bool InicializacionModelos() {
 		cout << "Error loading Fondo Model." << endl;
 		return false;
 	}
-	/*
-	cube = new Model("models/materials/cube.fbx");
-	if (cube == nullptr) {
-		cout << "Error loading cube Model." << endl;
-		return false;
-	}*/
+
 	return true;
 }
 
@@ -609,16 +827,6 @@ void MaterialesSinTexturaUnaLuz() {
 	materialSinTexturaUnaLuzShader->setFloat("transparency", MRejillaVentana.transparency);
 	materialSinTexturaUnaLuzShader->setInt("shininess", 5);
 	RejillaVentana->Draw(*materialSinTexturaUnaLuzShader);
-
-	Material MBotonesDorados;
-	MBotonesDorados.diffuse = glm::vec4(0.589f, 0.266f, 0.021f, 1.0f);
-	MBotonesDorados.specular = glm::vec4(0.9f, 0.9f, 0.9f, 1.0f);
-	materialSinTexturaUnaLuzShader->setVec4("MaterialAmbientColor", MBotonesDorados.ambient);
-	materialSinTexturaUnaLuzShader->setVec4("MaterialDiffuseColor", MBotonesDorados.diffuse);
-	materialSinTexturaUnaLuzShader->setVec4("MaterialSpecularColor", MBotonesDorados.specular);
-	materialSinTexturaUnaLuzShader->setFloat("transparency", MBotonesDorados.transparency);
-	materialSinTexturaUnaLuzShader->setInt("shininess", 2);
-	BotonesDorados->Draw(*materialSinTexturaUnaLuzShader);
 
 	Material MPropulsor;
 	MPropulsor.diffuse = glm::vec4(0.0f, 0.0f, 0.05f, 1.0f);
@@ -703,13 +911,7 @@ void MaterialesSinTexturaVariasLuces() {
 	materialSinTexturaVariasLucesShader->setVec3("dirLight[1].diffuse", negx.Diffuse);
 	materialSinTexturaVariasLucesShader->setVec3("dirLight[1].specular", negx.Specular);
 	materialSinTexturaVariasLucesShader->setVec3("dirLight[1].power", negx.Power);
-	// Luz direccional posy
-	/*materialSinTexturaVariasLucesShader->setVec3("dirLight[2].direction", posy.Direction);
-	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].ambient", posy.Ambient);
-	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].diffuse", posy.Diffuse);
-	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].specular", posy.Specular);
-	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].power", posy.Power);*/
-	//// Luz direccional negy
+	// Luz direccional negy
 	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].direction", negy.Direction);
 	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].ambient", negy.Ambient);
 	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].diffuse", negy.Diffuse);
@@ -745,16 +947,6 @@ void MaterialesSinTexturaVariasLuces() {
 	// Habilitar blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	/*
-	// Piso de prueba
-	Material m1;
-	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", m1.ambient);
-	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", m1.diffuse);
-	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", m1.specular);
-	materialSinTexturaVariasLucesShader->setFloat("transparency", m1.transparency);
-	materialSinTexturaVariasLucesShader->setInt("shininess", 10);
-	Floor.Draw(materialSinTexturaVariasLucesShader);*/
 
 	// Propiedades materiales del Barco
 
@@ -973,6 +1165,23 @@ void MaterialesSinTexturaVariasLuces() {
 	materialSinTexturaVariasLucesShader->setInt("shininess", 20);
 	Melena->Draw(*materialSinTexturaVariasLucesShader);
 
+	glm::mat4 modelTimon = glm::mat4(1.0f);
+	modelTimon = glm::translate(modelTimon, glm::vec3(0.367935f, 24.7927f, 26.7368f));
+	modelTimon = glm::rotate(modelTimon, glm::radians(glm::radians(timonRotation)), glm::vec3(0.0f, 0.0f, 1.0f));
+	modelTimon = glm::rotate(modelTimon, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	modelTimon = glm::scale(modelTimon, glm::vec3(1.0f, 1.0f, 1.0f));	// escala para los objetos que sean muy grandes
+	materialSinTexturaVariasLucesShader->setMat4("model", modelTimon);
+
+	Material MTimon;
+	MTimon.diffuse = glm::vec4(0.078f, 0.049f, 0.033f, 1.0f);
+	MTimon.specular = glm::vec4(0.078f, 0.049f, 0.033f, 1.0f);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MTimon.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MTimon.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MTimon.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MTimon.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 50);
+	Timon->Draw(*materialSinTexturaVariasLucesShader);
+
 	// Luz direccional posx
 	materialSinTexturaVariasLucesShader->setVec3("dirLight[3].direction", glm::vec3(0.0f));
 	materialSinTexturaVariasLucesShader->setVec3("dirLight[3].ambient", glm::vec3(0.0f));
@@ -985,6 +1194,7 @@ void MaterialesSinTexturaVariasLuces() {
 	materialSinTexturaVariasLucesShader->setVec3("dirLight[4].diffuse", glm::vec3(0.0f));
 	materialSinTexturaVariasLucesShader->setVec3("dirLight[4].specular", glm::vec3(0.0f));
 	materialSinTexturaVariasLucesShader->setVec3("dirLight[4].power", glm::vec3(0.0f));
+	materialSinTexturaVariasLucesShader->setMat4("model", model);
 
 	// BarandalesYLaterales
 	Material MBarandalesYLaterales;
@@ -997,22 +1207,395 @@ void MaterialesSinTexturaVariasLuces() {
 	materialSinTexturaVariasLucesShader->setInt("shininess", 10);
 	BarandalesYLaterales->Draw(*materialSinTexturaVariasLucesShader);
 
-	// cubo de luz
-	/*glm::mat4 cuboLuzM = glm::mat4(1.0f);
-	cuboLuzM = glm::translate(cuboLuzM, LuzPosition);
-	materialSinTexturaVariasLucesShader->setMat4("model", cuboLuzM);
-	Material luzp;
-	luzp.ambient = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
-	luzp.diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	luzp.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", luzp.ambient);
-	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", luzp.diffuse);
-	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", luzp.specular);
-	materialSinTexturaVariasLucesShader->setFloat("transparency", luzp.transparency);
-	materialSinTexturaVariasLucesShader->setInt("shininess", 10);
-	cube.Draw(materialSinTexturaVariasLucesShader);*/
-
 	glUseProgram(0);
+}
+
+// Dibujo de materiales sin textura con varias luces direccionales en la cocina
+void MaterialesSinTexturaCocina() {
+	// Activamos el shader estático
+	materialSinTexturaVariasLucesShader->use();
+
+	// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+	materialSinTexturaVariasLucesShader->setMat4("projection", projection);
+	materialSinTexturaVariasLucesShader->setMat4("view", view);
+
+	// Aplicamos transformaciones del modelo
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // Trasladar al centro de la escena
+	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// escala para los objetos que sean muy grandes
+	materialSinTexturaVariasLucesShader->setMat4("model", model);
+	// Propiedades de la luz
+	// Luz direccional posx
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[0].direction", posx.Direction);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[0].ambient", posx.Ambient);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[0].diffuse", posx.Diffuse);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[0].specular", posx.Specular);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[0].power", posx.Power);
+	// Luz direccional negx
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[1].direction", negx.Direction);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[1].ambient", negx.Ambient);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[1].diffuse", negx.Diffuse);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[1].specular", negx.Specular);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[1].power", negx.Power);
+	// Luz direccional negy
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].direction", negy.Direction);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].ambient", negy.Ambient);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].diffuse", negy.Diffuse);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].specular", negy.Specular);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].power", negy.Power);
+	// Luz direccional posz
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[3].direction", posz.Direction);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[3].ambient", posz.Ambient);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[3].diffuse", posz.Diffuse);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[3].specular", posz.Specular);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[3].power", posz.Power);
+	// Luz direccional negz
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[4].direction", negz.Direction);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[4].ambient", negz.Ambient);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[4].diffuse", negz.Diffuse);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[4].specular", negz.Specular);
+	materialSinTexturaVariasLucesShader->setVec3("dirLight[4].power", negz.Power);
+	// Luz de linterna
+	materialSinTexturaVariasLucesShader->setVec3("spotLight.position", camera.Position);
+	materialSinTexturaVariasLucesShader->setVec3("spotLight.direction", camera.Front);
+	materialSinTexturaVariasLucesShader->setVec3("spotLight.ambient", Lintern.Ambient);
+	materialSinTexturaVariasLucesShader->setVec3("spotLight.diffuse", Lintern.Diffuse);
+	materialSinTexturaVariasLucesShader->setVec3("spotLight.specular", Lintern.Specular);
+	materialSinTexturaVariasLucesShader->setFloat("spotLight.constant", Lintern.Constant);
+	materialSinTexturaVariasLucesShader->setFloat("spotLight.linear", Lintern.Linear);
+	materialSinTexturaVariasLucesShader->setFloat("spotLight.quadratic", Lintern.Quadratic);
+	materialSinTexturaVariasLucesShader->setFloat("spotLight.cutOff", Lintern.CutOff);
+	materialSinTexturaVariasLucesShader->setFloat("spotLight.outerCutOff", Lintern.OuterCutOff);
+
+	// Posición de la camara
+	materialSinTexturaVariasLucesShader->setVec3("viewPos", camera.Position);
+
+	// Habilitar blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Propiedades materiales del Barco
+	//BarraCuerpo
+	Material MBarraCuerpo;
+	MBarraCuerpo.diffuse = glm::vec4(0.512, 0.186, 0.091, 1.000);
+	MBarraCuerpo.specular = glm::vec4(0.512, 0.186, 0.091, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MBarraCuerpo.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MBarraCuerpo.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MBarraCuerpo.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MBarraCuerpo.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	BarraCuerpo->Draw(*materialSinTexturaVariasLucesShader);
+
+	//BarraMesa
+	Material MBarraMesa;
+	MBarraMesa.diffuse = glm::vec4(0.800, 0.800, 0.800, 1.000);
+	MBarraMesa.specular = glm::vec4(0.800, 0.800, 0.800, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MBarraMesa.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MBarraMesa.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MBarraMesa.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MBarraMesa.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	BarraMesa->Draw(*materialSinTexturaVariasLucesShader);
+
+	//BarraPiso
+	Material MBarraPiso;
+	MBarraPiso.diffuse = glm::vec4(0.356, 0.356, 0.356, 1.000);
+	MBarraPiso.specular = glm::vec4(0.356, 0.356, 0.356, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MBarraPiso.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MBarraPiso.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MBarraPiso.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MBarraPiso.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	BarraPiso->Draw(*materialSinTexturaVariasLucesShader);
+
+	//BaseSilla
+	Material MBaseSilla;
+	MBaseSilla.diffuse = glm::vec4(0.212, 0.072, 0.029, 1.000);
+	MBaseSilla.specular = glm::vec4(0.212, 0.072, 0.029, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MBaseSilla.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MBaseSilla.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MBaseSilla.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MBaseSilla.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	BaseSilla->Draw(*materialSinTexturaVariasLucesShader);
+
+	//Campana1
+	Material MCampana1;
+	MCampana1.diffuse = glm::vec4(0.800, 0.800, 0.800, 1.000);
+	MCampana1.specular = glm::vec4(0.800, 0.800, 0.800, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MCampana1.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MCampana1.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MCampana1.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MCampana1.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	Campana1->Draw(*materialSinTexturaVariasLucesShader);
+
+	//Campana2
+	Material MCampana2;
+	MCampana2.diffuse = glm::vec4(0.066, 0.358, 0.800, 1.000);
+	MCampana2.specular = glm::vec4(0.066, 0.358, 0.800, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MCampana2.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MCampana2.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MCampana2.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MCampana2.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	Campana2->Draw(*materialSinTexturaVariasLucesShader);
+
+	//CampanaFondo
+	Material MCampanaFondo;
+	MCampanaFondo.diffuse = glm::vec4(0.000, 0.000, 0.000, 1.000);
+	MCampanaFondo.specular = glm::vec4(0.000, 0.000, 0.000, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MCampanaFondo.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MCampanaFondo.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MCampanaFondo.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MCampanaFondo.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	CampanaFondo->Draw(*materialSinTexturaVariasLucesShader);
+
+	//CampanaTope
+	Material MCampanaTope;
+	MCampanaTope.diffuse = glm::vec4(0.270, 0.270, 0.270, 1.000);
+	MCampanaTope.specular = glm::vec4(0.270, 0.270, 0.270, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MCampanaTope.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MCampanaTope.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MCampanaTope.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MCampanaTope.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	CampanaTope->Draw(*materialSinTexturaVariasLucesShader);
+
+	//EstufaCuerpo
+	Material MEstufaCuerpo;
+	MEstufaCuerpo.diffuse = glm::vec4(0.153, 0.153, 0.153, 1.000);
+	MEstufaCuerpo.specular = glm::vec4(0.153, 0.153, 0.153, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MEstufaCuerpo.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MEstufaCuerpo.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MEstufaCuerpo.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MEstufaCuerpo.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	EstufaCuerpo->Draw(*materialSinTexturaVariasLucesShader);
+
+	//EstufaIntegral
+	Material MEstufaIntegral;
+	MEstufaIntegral.diffuse = glm::vec4(0.434, 0.388, 0.393, 1.000);
+	MEstufaIntegral.specular = glm::vec4(0.434, 0.388, 0.393, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MEstufaIntegral.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MEstufaIntegral.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MEstufaIntegral.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MEstufaIntegral.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	EstufaIntegral->Draw(*materialSinTexturaVariasLucesShader);
+
+	//EstufaIntegralMarco
+	Material MEstufaIntegralMarco;
+	MEstufaIntegralMarco.diffuse = glm::vec4(0.166, 0.149, 0.151, 1.000);
+	MEstufaIntegralMarco.specular = glm::vec4(0.166, 0.149, 0.151, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MEstufaIntegralMarco.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MEstufaIntegralMarco.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MEstufaIntegralMarco.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MEstufaIntegralMarco.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	EstufaIntegralMarco->Draw(*materialSinTexturaVariasLucesShader);
+
+	//EstufaMesa
+	Material MEstufaMesa;
+	MEstufaMesa.diffuse = glm::vec4(0.800, 0.800, 0.800, 1.000);
+	MEstufaMesa.specular = glm::vec4(0.800, 0.800, 0.800, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MEstufaMesa.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MEstufaMesa.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MEstufaMesa.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MEstufaMesa.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	EstufaMesa->Draw(*materialSinTexturaVariasLucesShader);
+
+	//EstufaPiso
+	Material MEstufaPiso;
+	MEstufaPiso.diffuse = glm::vec4(0.000, 0.000, 0.000, 1.000);
+	MEstufaPiso.specular = glm::vec4(0.000, 0.000, 0.000, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MEstufaPiso.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MEstufaPiso.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MEstufaPiso.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MEstufaPiso.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	EstufaPiso->Draw(*materialSinTexturaVariasLucesShader);
+
+	//Extractor
+	Material MExtractor;
+	MExtractor.diffuse = glm::vec4(0.800, 0.717, 0.499, 1.000);
+	MExtractor.specular = glm::vec4(0.800, 0.717, 0.499, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MExtractor.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MExtractor.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MExtractor.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MExtractor.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	Extractor->Draw(*materialSinTexturaVariasLucesShader);
+
+	//ExtractorFondo
+	Material MExtractorFondo;
+	MExtractorFondo.diffuse = glm::vec4(0.232, 0.151, 0.051, 1.000);
+	MExtractorFondo.specular = glm::vec4(0.232, 0.151, 0.051, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MExtractorFondo.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MExtractorFondo.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MExtractorFondo.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MExtractorFondo.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	ExtractorFondo->Draw(*materialSinTexturaVariasLucesShader);
+
+	//ExtractorMarco
+	Material MExtractorMarco;
+	MExtractorMarco.diffuse = glm::vec4(0.287, 0.258, 0.182, 1.000);
+	MExtractorMarco.specular = glm::vec4(0.287, 0.258, 0.182, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MExtractorMarco.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MExtractorMarco.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MExtractorMarco.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MExtractorMarco.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	ExtractorMarco->Draw(*materialSinTexturaVariasLucesShader);
+
+	//MangoEstufa
+	Material MMangoEstufa;
+	MMangoEstufa.diffuse = glm::vec4(0.000, 0.000, 0.000, 1.000);
+	MMangoEstufa.specular = glm::vec4(0.000, 0.000, 0.000, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MMangoEstufa.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MMangoEstufa.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MMangoEstufa.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MMangoEstufa.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	MangoEstufa->Draw(*materialSinTexturaVariasLucesShader);
+
+	//Mesa
+	Material MMesa;
+	MMesa.diffuse = glm::vec4(0.130, 0.022, 0.010, 1.000);
+	MMesa.specular = glm::vec4(0.130, 0.022, 0.010, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MMesa.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MMesa.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MMesa.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MMesa.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	Mesa->Draw(*materialSinTexturaVariasLucesShader);
+
+	//Mesita
+	Material MMesita;
+	MMesita.diffuse = glm::vec4(0.141, 0.045, 0.016, 1.000);
+	MMesita.specular = glm::vec4(0.141, 0.045, 0.016, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MMesita.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MMesita.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MMesita.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MMesita.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	Mesita->Draw(*materialSinTexturaVariasLucesShader);
+
+	//ParedesCocina
+	Material MParedesCocina;
+	MParedesCocina.diffuse = glm::vec4(0.280, 0.684, 0.800, 1.000);
+	MParedesCocina.specular = glm::vec4(0.280, 0.684, 0.800, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MParedesCocina.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MParedesCocina.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MParedesCocina.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MParedesCocina.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	ParedesCocina->Draw(*materialSinTexturaVariasLucesShader);
+
+	//Refri
+	Material MRefri;
+	MRefri.diffuse = glm::vec4(0.287, 0.287, 0.287, 1.000);
+	MRefri.specular = glm::vec4(0.5, 0.5, 0.5, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MRefri.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MRefri.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MRefri.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MRefri.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	Refri->Draw(*materialSinTexturaVariasLucesShader);
+
+	//RefriMarco
+	Material MRefriMarco;
+	MRefriMarco.diffuse = glm::vec4(0.070, 0.070, 0.070, 1.000);
+	MRefriMarco.specular = glm::vec4(0.070, 0.070, 0.070, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MRefriMarco.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MRefriMarco.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MRefriMarco.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MRefriMarco.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	RefriMarco->Draw(*materialSinTexturaVariasLucesShader);
+
+	//Sarten
+	Material MSarten;
+	MSarten.diffuse = glm::vec4(0.1, 0.1, 0.1, 1.000);
+	MSarten.specular = glm::vec4(0.5, 0.5, 0.5, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MSarten.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MSarten.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MSarten.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MSarten.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	Sarten->Draw(*materialSinTexturaVariasLucesShader);
+
+	//Silla
+	Material MSilla;
+	MSilla.diffuse = glm::vec4(0.563, 0.441, 0.125, 1.000);
+	MSilla.specular = glm::vec4(0.663, 0.541, 0.225, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MSilla.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MSilla.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MSilla.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MSilla.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	Silla->Draw(*materialSinTexturaVariasLucesShader);
+
+	//SillaInterior
+	Material MSillaInterior;
+	MSillaInterior.diffuse = glm::vec4(0.299, 0.236, 0.069, 1.000);
+	MSillaInterior.specular = glm::vec4(0.299, 0.236, 0.069, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MSillaInterior.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MSillaInterior.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MSillaInterior.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MSillaInterior.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	SillaInterior->Draw(*materialSinTexturaVariasLucesShader);
+
+	//TechoCocina
+	Material MTechoCocina;
+	MTechoCocina.diffuse = glm::vec4(0.816, 0.052, 0.031, 1.000);
+	MTechoCocina.specular = glm::vec4(0.816, 0.052, 0.031, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MTechoCocina.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MTechoCocina.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MTechoCocina.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MTechoCocina.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	TechoCocina->Draw(*materialSinTexturaVariasLucesShader);
+
+	//TransicionTechoCocina
+	Material MTransicionTechoCocina;
+	MTransicionTechoCocina.diffuse = glm::vec4(0.800, 0.800, 0.800, 1.000);
+	MTransicionTechoCocina.specular = glm::vec4(0.800, 0.800, 0.800, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MTransicionTechoCocina.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MTransicionTechoCocina.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MTransicionTechoCocina.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MTransicionTechoCocina.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	TransicionTechoCocina->Draw(*materialSinTexturaVariasLucesShader);
+
+	//TroncoSaliente
+	Material MTroncoSaliente;
+	MTroncoSaliente.diffuse = glm::vec4(0.356, 0.090, 0.030, 1.000);
+	MTroncoSaliente.specular = glm::vec4(0.356, 0.090, 0.030, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MTroncoSaliente.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MTroncoSaliente.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MTroncoSaliente.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", MTroncoSaliente.transparency);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	TroncoSaliente->Draw(*materialSinTexturaVariasLucesShader);
+
+	//VentanaEstufa
+	Material MVentanaEstufa;
+	MVentanaEstufa.diffuse = glm::vec4(0.185, 0.326, 0.280, 1.000);
+	MVentanaEstufa.specular = glm::vec4(0.5, 0.5, 0.5, 1.000);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MVentanaEstufa.ambient);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MVentanaEstufa.diffuse);
+	materialSinTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MVentanaEstufa.specular);
+	materialSinTexturaVariasLucesShader->setFloat("transparency", 0.5f);
+	materialSinTexturaVariasLucesShader->setInt("shininess", 5);
+	VentanaEstufa->Draw(*materialSinTexturaVariasLucesShader);
 }
 
 // Dibujo de materiales con textura con varias luces direccionales
@@ -1045,13 +1628,7 @@ void MaterialesConTexturasVariasLuces() {
 	materialConTexturaVariasLucesShader->setVec3("dirLight[1].diffuse", negx.Diffuse);
 	materialConTexturaVariasLucesShader->setVec3("dirLight[1].specular", negx.Specular);
 	materialConTexturaVariasLucesShader->setVec3("dirLight[1].power", negx.Power);
-	// Luz direccional posy
-	/*materialConTexturaVariasLucesShader->setVec3("dirLight[2].direction", posy.Direction);
-	materialConTexturaVariasLucesShader->setVec3("dirLight[2].ambient", posy.Ambient);
-	materialConTexturaVariasLucesShader->setVec3("dirLight[2].diffuse", posy.Diffuse);
-	materialConTexturaVariasLucesShader->setVec3("dirLight[2].specular", posy.Specular);
-	materialConTexturaVariasLucesShader->setVec3("dirLight[2].power", posy.Power);*/
-	//// Luz direccional negy
+	// Luz direccional negy
 	materialConTexturaVariasLucesShader->setVec3("dirLight[2].direction", negy.Direction);
 	materialConTexturaVariasLucesShader->setVec3("dirLight[2].ambient", negy.Ambient);
 	materialConTexturaVariasLucesShader->setVec3("dirLight[2].diffuse", negy.Diffuse);
@@ -1128,6 +1705,62 @@ void MaterialesConTexturasVariasLuces() {
 	materialConTexturaVariasLucesShader->setInt("shininess", 50);
 	BarcoCostado->Draw(*materialConTexturaVariasLucesShader);
 
+	Material MSoffa1;
+	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MSoffa1.ambient);
+	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MSoffa1.diffuse);
+	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MSoffa1.specular);
+	materialConTexturaVariasLucesShader->setFloat("transparency", MSoffa1.transparency);
+	materialConTexturaVariasLucesShader->setInt("shininess", 5);
+	Soffa1->Draw(*materialConTexturaVariasLucesShader);
+
+	Material MSoffa2;
+	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MSoffa2.ambient);
+	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MSoffa2.diffuse);
+	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MSoffa2.specular);
+	materialConTexturaVariasLucesShader->setFloat("transparency", MSoffa2.transparency);
+	materialConTexturaVariasLucesShader->setInt("shininess", 5);
+	Soffa2->Draw(*materialConTexturaVariasLucesShader);
+
+	Material MMantel;
+	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MMantel.ambient);
+	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MMantel.diffuse);
+	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MMantel.specular);
+	materialConTexturaVariasLucesShader->setFloat("transparency", MMantel.transparency);
+	materialConTexturaVariasLucesShader->setInt("shininess", 5);
+	Mantel->Draw(*materialConTexturaVariasLucesShader);
+
+	Material MPisoAjedrez;
+	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MPisoAjedrez.ambient);
+	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MPisoAjedrez.diffuse);
+	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MPisoAjedrez.specular);
+	materialConTexturaVariasLucesShader->setFloat("transparency", MPisoAjedrez.transparency);
+	materialConTexturaVariasLucesShader->setInt("shininess", 5);
+	PisoAjedrez->Draw(*materialConTexturaVariasLucesShader);
+
+	Material MPisoMadera1;
+	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MPisoMadera1.ambient);
+	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MPisoMadera1.diffuse);
+	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MPisoMadera1.specular);
+	materialConTexturaVariasLucesShader->setFloat("transparency", MPisoMadera1.transparency);
+	materialConTexturaVariasLucesShader->setInt("shininess", 5);
+	PisoMadera1->Draw(*materialConTexturaVariasLucesShader);
+
+	Material MTronco;
+	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MTronco.ambient);
+	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MTronco.diffuse);
+	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MTronco.specular);
+	materialConTexturaVariasLucesShader->setFloat("transparency", MTronco.transparency);
+	materialConTexturaVariasLucesShader->setInt("shininess", 5);
+	Tronco->Draw(*materialConTexturaVariasLucesShader);
+
+	Material MParedMadera;
+	materialConTexturaVariasLucesShader->setVec4("MaterialAmbientColor", MParedMadera.ambient);
+	materialConTexturaVariasLucesShader->setVec4("MaterialDiffuseColor", MParedMadera.diffuse);
+	materialConTexturaVariasLucesShader->setVec4("MaterialSpecularColor", MParedMadera.specular);
+	materialConTexturaVariasLucesShader->setFloat("transparency", MParedMadera.transparency);
+	materialConTexturaVariasLucesShader->setInt("shininess", 5);
+	ParedMadera->Draw(*materialConTexturaVariasLucesShader);
+
 	glUseProgram(0);
 }
 
@@ -1146,7 +1779,7 @@ void DibujaFondo() {
 	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));	// escala para los objetos que sean muy grandes
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 	fondoShader->setMat4("model", model);
 	// Propiedades de la luz
 	// Luz direccional posx
@@ -1232,26 +1865,28 @@ void MaterialesSinTexturaFresnel() {
 	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 	fresnelShader->setMat4("model", model);
-	fresnelShader->setFloat("transparency", 1.0f);
+	
 	// Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-
+	fresnelShader->setFloat("transparency", 0.8f);
+	fresnelShader->setVec4("colorDiffuse",glm::vec4(0.20f, 1.0f, 0.96f, 1.0f));
 	Vidrio->Draw(*fresnelShader);
+
+	fresnelShader->setFloat("transparency", 0.8f);
+	fresnelShader->setVec4("colorDiffuse", glm::vec4(0.20f, 1.0f, 0.96f, 1.0f));
 	VentanaPuertaSinMarco->Draw(*fresnelShader);
 
+	fresnelShader->setFloat("transparency", 1.0f);
+	fresnelShader->setVec4("colorDiffuse", glm::vec4(1.0f, 0.96f, 0.20f, 1.0f));
+	BotonesDorados->Draw(*fresnelShader);
 	glUseProgram(0);
 }
 
 // Dibujo de animaciones con varias luces direccionales
 void MaterialesAnimadosVariasLuces() {
-	// Cálculo del framerate
-	float currentFrame = (float)glfwGetTime();
-	deltaTime = currentFrame - lastFrame;
-	lastFrame = currentFrame;
-	elapsedTime += deltaTime;
 
 	elapsedTime += deltaTime;
 	if (elapsedTime > 1.0f / fps) {
@@ -1260,8 +1895,8 @@ void MaterialesAnimadosVariasLuces() {
 			animationCount = 0;
 		}
 		// Configuración de la pose en el instante t
-		Zoro->SetPose((float)animationCount, ZoroBones, animationType);
-		Robin->SetPose((float)animationCount, RobinBones, animationType);
+		Zoro->SetPose((float)animationCount, ZoroBones, animationTypeZoro);
+		Robin->SetPose((float)animationCount, RobinBones, animationTypeRobin);
 		elapsedTime = 0.0f;
 	}
 
@@ -1271,15 +1906,6 @@ void MaterialesAnimadosVariasLuces() {
 	// Aplicamos transformaciones de proyección y cámara (si las hubiera)
 	animados->setMat4("projection", projection);
 	animados->setMat4("view", view);
-
-	// Aplicamos transformaciones del modelo
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // Pasar al centro de la escena
-	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));	// Es muy grande el cubo
-	animados->setMat4("model", model);
 
 	// Propiedades de la luz
 
@@ -1297,12 +1923,6 @@ void MaterialesAnimadosVariasLuces() {
 	animados->setVec3("dirLight[1].diffuse", negx.Diffuse);
 	animados->setVec3("dirLight[1].specular", negx.Specular);
 	animados->setVec3("dirLight[1].power", negx.Power);
-	// Luz direccional posy
-	/*materialSinTexturaVariasLucesShader->setVec3("dirLight[2].direction", posy.Direction);
-	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].ambient", posy.Ambient);
-	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].diffuse", posy.Diffuse);
-	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].specular", posy.Specular);
-	materialSinTexturaVariasLucesShader->setVec3("dirLight[2].power", posy.Power);*/
 	// Luz direccional negy
 	animados->setVec3("dirLight[2].direction", negy.Direction);
 	animados->setVec3("dirLight[2].ambient", negy.Ambient);
@@ -1343,6 +1963,15 @@ void MaterialesAnimadosVariasLuces() {
 
 
 	// Zoro
+	// Aplicamos transformaciones del modelo
+	glm::mat4 modelZoro = glm::mat4(1.0f);
+	modelZoro = glm::translate(modelZoro, positionZoro);
+	modelZoro = glm::rotate(modelZoro, glm::radians(rotateCharacterZoro), glm::vec3(0.0f, 1.0f, 0.0f));
+	modelZoro = glm::rotate(modelZoro, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	modelZoro = glm::scale(modelZoro, glm::vec3(0.01f, 0.01f, 0.01f));	
+
+	animados->setMat4("model", modelZoro);
+
 	animados->setMat4("gBones", MAX_RIGGING_BONES, ZoroBones);
 	Material MZoro;
 	animados->setVec4("MaterialAmbientColor", MZoro.ambient);
@@ -1353,6 +1982,15 @@ void MaterialesAnimadosVariasLuces() {
 	Zoro->Draw(*animados);
 
 	// Robin
+	// Aplicamos transformaciones del modelo
+	glm::mat4 modelRobin = glm::mat4(1.0f);
+	modelRobin = glm::translate(modelRobin, glm::vec3(0.0f, 0.0f, -3.0f));
+	modelRobin = glm::translate(modelRobin, positionRobin);
+	modelRobin = glm::rotate(modelRobin, glm::radians(rotateCharacterRobin), glm::vec3(0.0f, 1.0f, 0.0f));
+	modelRobin = glm::rotate(modelRobin, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	modelRobin = glm::scale(modelRobin, glm::vec3(0.01f, 0.01f, 0.01f));
+
+	animados->setMat4("model", modelRobin);
 	animados->setMat4("gBones", MAX_RIGGING_BONES, RobinBones);
 	Material MRobin;
 	animados->setVec4("MaterialAmbientColor", MRobin.ambient);
@@ -1371,6 +2009,12 @@ bool Update() {
 	// Procesa la entrada del teclado o mouse
 	processInput(window);
 
+	// Cálculo del framerate
+	float currentFrame = (float)glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+	elapsedTime += deltaTime;
+
 	// Renderizado R - G - B - A
 	glClearColor(bgR, bgG, bgB, bgA);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1384,16 +2028,9 @@ bool Update() {
 	posz.Direction = glm::vec3(0.0f, 0.0f, 1.0f);
 	negz.Direction = glm::vec3(0.0f, 0.0f, -1.0f);
 	sol.setPower(3.0f);
-	//sol.Direction = glm::vec3(-0.5f, -0.86f, 0.0f);
-
-	// Puntos de luz
-	L0.setPosition(38.4f, -0.6f, -22.9f);
-	L1.setPosition(-28.40f, -0.6f, -22.9f);
-	L2.setPosition(0.0f, -0.6, 0.0f);
-	L3.setPosition(0.0f, 0.0f, -65.90f);
 
 	// Proyecciones y vistas
-	projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+	projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 	view = camera.GetViewMatrix();
 
 	// Materiales Estáticos
@@ -1404,6 +2041,7 @@ bool Update() {
 
 	//			Materiales con 6 luces posicionales
 	MaterialesSinTexturaVariasLuces();
+	MaterialesSinTexturaCocina();
 
 	//			Objetos Sin textura con Iluminación de Fresnel
 	MaterialesSinTexturaFresnel();
@@ -1412,48 +2050,6 @@ bool Update() {
 	//			Materiales con varias luces direccionales
 	MaterialesConTexturasVariasLuces();
 	DibujaFondo();
-	// Puntos de luz
-	/*
-	// point light 1
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[0].position", L0.Position);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[0].ambient", L0.Ambient);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[0].diffuse", L0.Diffuse);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[0].specular", L0.Specular);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[0].constant", L0.Constant);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[0].linear", L0.Linear);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[0].quadratic", L0.Quadratic);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[0].power", L0.Power);
-	
-	// point light 2
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[1].position", L1.Position);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[1].ambient", L1.Ambient);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[1].diffuse", L1.Diffuse);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[1].specular", L1.Specular);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[1].constant", L1.Constant);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[1].linear", L1.Linear);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[1].quadratic", L1.Quadratic);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[1].power", L1.Power);
-
-	// point light 3
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[2].position", L2.Position);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[2].ambient", L2.Ambient);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[2].diffuse", L2.Diffuse);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[2].specular", L2.Specular);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[2].constant", L2.Constant);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[2].linear", L2.Linear);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[2].quadratic", L2.Quadratic);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[2].power", L2.Power);
-
-	// point light 4
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[3].position", L3.Position);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[3].ambient", L3.Ambient);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[3].diffuse", L3.Diffuse);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[3].specular", L3.Specular);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[3].constant", L3.Constant);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[3].linear", L3.Linear);
-	materialSinTexturaVariasLucesShader->setFloat("pointLights[3].quadratic", L3.Quadratic);
-	materialSinTexturaVariasLucesShader->setVec3("pointLights[3].power", L3.Power);
-	*/
 
 	// Materiales Animados
 	// 	   Materiales con textura
@@ -1476,78 +2072,130 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+
+	// Movimientos Camara
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		camera.ProcessKeyboard(FORWARD, deltaTime);
+	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		camera.ProcessKeyboard(BACKWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
-	//if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	// Zoro movement
+	// Zoro Movimiento
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+		positionZoro = positionZoro + scaleVZoro * forwardViewZoro;
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+		positionZoro = positionZoro - scaleVZoro * forwardViewZoro;
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+		rotateCharacterZoro += 0.5f;
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(rotateCharacterZoro), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+		forwardViewZoro = glm::vec3(viewVector);
+		forwardViewZoro = glm::normalize(forwardViewZoro);
 	}
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		rotateCharacterZoro -= 0.5f;
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(rotateCharacterZoro), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+		forwardViewZoro = glm::vec3(viewVector);
+		forwardViewZoro = glm::normalize(forwardViewZoro);
 	}
+	// Robin Movimiento
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+		positionRobin = positionRobin + scaleVRobin * forwardViewRobin;
+	}
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+		positionRobin = positionRobin - scaleVRobin * forwardViewRobin;
+	}
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+		rotateCharacterRobin += 0.5f;
 
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(rotateCharacterRobin), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+		forwardViewRobin = glm::vec3(viewVector);
+		forwardViewRobin = glm::normalize(forwardViewRobin);
+	}
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+		rotateCharacterRobin -= 0.5f;
 
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(rotateCharacterRobin), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+		forwardViewRobin = glm::vec3(viewVector);
+		forwardViewRobin = glm::normalize(forwardViewRobin);
+	}
+	// Prender o apagar la linterna
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
 		Lintern.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 		Lintern.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+		Lintern.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+		Lintern.setPower(30.0f);
 	}
 	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS) {
 		Lintern.Diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
 		Lintern.Specular = glm::vec3(0.0f, 0.0f, 0.0f);
+		Lintern.Ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+		Lintern.setPower(0.0f);
 	}
 	if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
+		timonRotation += 20.0f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
+		timonRotation -= 20.0f;
 	}
-
-
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-	{
-		animationType = 0;
+	// Control animaciones
+	if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+		animationTypeZoro = 0;
 	}
-	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-	{
-		animationType = 1;
+	if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
+		animationTypeZoro = 1;
 	}
-
-	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
-		LuzPosition += glm::vec3(0.1f, 0.0f, 0.0f);
-		std::cout << LuzPosition.x << "," << LuzPosition.y << "," << LuzPosition.z << std::endl;
+	if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
+		animationTypeRobin = 0;
 	}
-	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) {
-		LuzPosition -= glm::vec3(0.1f, 0.0f, 0.0f);
-		std::cout << LuzPosition.x << "," << LuzPosition.y << "," << LuzPosition.z << std::endl;
+	if (glfwGetKey(window, GLFW_KEY_F4) == GLFW_PRESS) {
+		animationTypeRobin = 1;
 	}
-	if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
-		LuzPosition += glm::vec3(0.0f, 0.1f, 0.0f);
-		std::cout << LuzPosition.x << "," << LuzPosition.y << "," << LuzPosition.z << std::endl;
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+		if (scaleVZoro < 0.1) {
+			scaleVZoro += 0.005f;
+		}
 	}
-	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
-		LuzPosition -= glm::vec3(0.0f, 0.1f, 0.0f);
-		std::cout << LuzPosition.x << "," << LuzPosition.y << "," << LuzPosition.z << std::endl;
-	}
-	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
-		LuzPosition += glm::vec3(0.0f, 0.0f, 0.1f);
-		std::cout << LuzPosition.x << "," << LuzPosition.y << "," << LuzPosition.z << std::endl;
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+		if (scaleVZoro > 0.0) {
+			scaleVZoro -= 0.005f;
+		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
-		LuzPosition -= glm::vec3(0.0f, 0.0f, 0.1f);
-		std::cout << LuzPosition.x << "," << LuzPosition.y << "," << LuzPosition.z << std::endl;
+		if (scaleVRobin < 0.1) {
+			scaleVRobin += 0.005f;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
+		if (scaleVRobin > 0.0) {
+			scaleVRobin -= 0.005f;
+		}
+	}
+	// velocidad camara
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+		if (camera.MovementSpeed < 20.0) {
+			camera.MovementSpeed += 0.1f;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
+		if (camera.MovementSpeed > 0.0) {
+			camera.MovementSpeed -= 0.1f;
+		}
 	}
 }
 

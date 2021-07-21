@@ -11,6 +11,7 @@ out vec4 FragColor;
 
 uniform sampler2D tex;
 uniform vec3 lightDir;
+uniform vec4 colorDiffuse;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -41,7 +42,10 @@ void main(void)
 	refractedColor.g = textureCube( cubetex, vec3( -vRefract[1].x, vRefract[1].yz ) ).g;
 	refractedColor.b = textureCube( cubetex, vec3( -vRefract[2].x, vRefract[2].yz ) ).b;
 
+	vec4 texel = texture(texture_diffuse1, TexCoords);
 	// sample just fresnel
-	FragColor = mix( refractedColor, reflectedColor, clamp( vReflectionFactor, 0.0, 1.0 ) );
-	FragColor.a = transparency;
+	vec4 result = mix( refractedColor, reflectedColor, clamp( vReflectionFactor, 0.0, 1.0 ));
+	result = result*colorDiffuse;
+	result.a = transparency;
+	FragColor = result;
 }
