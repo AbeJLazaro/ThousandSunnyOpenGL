@@ -46,6 +46,7 @@ void MaterialesConTexturasVariasLuces();
 void MaterialesAnimadosVariasLuces();
 void DibujaFondo();
 unsigned int loadCubemap(vector<std::string> faces);
+void Limpiar();
 
 // Definición de callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -207,12 +208,12 @@ float elapsedTime = 0.0f;
 // Variables para el control de las animaciones
 
 glm::vec3 positionZoro(0.0f, 0.0f, 0.0f);
-glm::vec3 forwardViewZoro(0.0f, 0.0f, 1.0f);
+glm::vec3 forwardViewZoro(1.0f, 0.0f, 0.0f);
 float     scaleVZoro = 0.005f;
 float     rotateCharacterZoro = 0.0f;
 
 glm::vec3 positionRobin(0.0f, 0.0f, 0.0f);
-glm::vec3 forwardViewRobin(0.0f, 0.0f, 1.0f);
+glm::vec3 forwardViewRobin(1.0f, 0.0f, 0.0f);
 float     scaleVRobin = 0.005f;
 float     rotateCharacterRobin = 0.0f;
 
@@ -232,6 +233,7 @@ int main(void) {
 	}
 
 	glfwTerminate();
+	Limpiar();
 	return 0;
 }
 
@@ -1880,7 +1882,7 @@ void MaterialesSinTexturaFresnel() {
 	VentanaPuertaSinMarco->Draw(*fresnelShader);
 
 	fresnelShader->setFloat("transparency", 1.0f);
-	fresnelShader->setVec4("colorDiffuse", glm::vec4(1.0f, 0.96f, 0.20f, 1.0f));
+	fresnelShader->setVec4("colorDiffuse", glm::vec4(0.87f, 0.70f, 0.0f, 1.0f));
 	BotonesDorados->Draw(*fresnelShader);
 	glUseProgram(0);
 }
@@ -2037,25 +2039,25 @@ bool Update() {
 	//		Materiales sin textura
 
 	//			Materiales con una sola luz direccional (metales y hojas)
-	MaterialesSinTexturaUnaLuz();
+	//MaterialesSinTexturaUnaLuz();
 
 	//			Materiales con 6 luces posicionales
-	MaterialesSinTexturaVariasLuces();
-	MaterialesSinTexturaCocina();
+	//MaterialesSinTexturaVariasLuces();
+	//MaterialesSinTexturaCocina();
 
 	//			Objetos Sin textura con Iluminación de Fresnel
 	MaterialesSinTexturaFresnel();
 
 	//		Materiales Con textura
 	//			Materiales con varias luces direccionales
-	MaterialesConTexturasVariasLuces();
+	//MaterialesConTexturasVariasLuces();
 	DibujaFondo();
 
 	// Materiales Animados
 	// 	   Materiales con textura
 	
 	//			Materiales con textura animados phong
-	MaterialesAnimadosVariasLuces();
+	//MaterialesAnimadosVariasLuces();
 
 	// glfw: swap buffers 
 	/* Swap front and back buffers */
@@ -2065,6 +2067,102 @@ bool Update() {
 	glfwPollEvents();
 
 	return true;
+}
+
+// Función para eliminar de memoria las mallas
+void Limpiar() {
+	delete Canons;
+	delete MarcoOroPuerta;
+	delete MaderaPuerta;
+	delete MarcoPuertaRojo;
+	delete MarcoPuertaBlanco;
+	delete CostadosRojos;
+	delete FondoCanons;
+	delete RejillaVentana;
+	delete MarcoCostado;
+	delete BarcoBase;
+	delete Timon;
+	delete BarcoBaseTextura;
+	delete BarcoCostado;
+	delete Pasto;
+	delete Paredes1;
+	delete PisoMadera;
+	delete BarandalesYLaterales;
+	delete CintaInferior;
+	delete BotonesDorados;
+	delete BandaSuperior;
+	delete TechoParedSuperior;
+	delete Propulsor;
+	delete AmarilloTecho;
+	delete MarcoVentana;
+	delete MarcoFarol;
+	delete BaseBandera;
+	delete Velas;
+	delete BanderaRoja;
+	delete MetalMastil;
+	delete BaseCuartoMastil;
+	delete MaderaArbol;
+	delete Hojas;
+	delete MaterialCadena;
+	delete FondoCara;
+	delete Huesos;
+	delete FondoOjos;
+	delete Melena;
+	// Fresnel
+	delete Vidrio;
+	delete VentanaPuertaSinMarco;
+	// Modelos Cocina 
+	// Phong
+	delete BarraCuerpo;
+	delete BarraMesa;
+	delete BarraPiso;
+	delete BaseSilla;
+	delete Campana1;
+	delete Campana2;
+	delete CampanaFondo;
+	delete CampanaTope;
+	delete EstufaCuerpo;
+	delete EstufaIntegral;
+	delete EstufaIntegralMarco;
+	delete EstufaMesa;
+	delete EstufaPiso;
+	delete Extractor;
+	delete ExtractorFondo;
+	delete ExtractorMarco;
+	delete MangoEstufa;
+	delete Mantel;
+	delete Mesa;
+	delete Mesita;
+	delete ParedesCocina;
+	delete ParedMadera;
+	delete PisoAjedrez;
+	delete PisoMadera1;
+	delete Refri;
+	delete RefriMarco;
+	delete Sarten;
+	delete Silla;
+	delete SillaInterior;
+	delete Soffa1;
+	delete Soffa2;
+	delete TechoCocina;
+	delete TransicionTechoCocina;
+	delete Tronco;
+	delete TroncoSaliente;
+	delete VentanaEstufa;
+	// Modelo del fondo
+	delete Fondo;
+
+	// Animaciones
+	delete Zoro;
+	delete Robin;
+
+	// Shaders
+	delete materialSinTexturaUnaLuzShader;
+	delete materialSinTexturaVariasLucesShader;
+	delete materialConTexturaVariasLucesShader;
+	delete fondoShader;
+	delete fresnelShader;
+	delete animados;
 }
 
 // Procesamos entradas del teclado
@@ -2096,7 +2194,7 @@ void processInput(GLFWwindow* window)
 
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::rotate(model, glm::radians(rotateCharacterZoro), glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+		glm::vec4 viewVector = model * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 		forwardViewZoro = glm::vec3(viewVector);
 		forwardViewZoro = glm::normalize(forwardViewZoro);
 	}
@@ -2105,7 +2203,7 @@ void processInput(GLFWwindow* window)
 
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::rotate(model, glm::radians(rotateCharacterZoro), glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+		glm::vec4 viewVector = model * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 		forwardViewZoro = glm::vec3(viewVector);
 		forwardViewZoro = glm::normalize(forwardViewZoro);
 	}
@@ -2121,7 +2219,7 @@ void processInput(GLFWwindow* window)
 
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::rotate(model, glm::radians(rotateCharacterRobin), glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+		glm::vec4 viewVector = model * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 		forwardViewRobin = glm::vec3(viewVector);
 		forwardViewRobin = glm::normalize(forwardViewRobin);
 	}
@@ -2130,7 +2228,7 @@ void processInput(GLFWwindow* window)
 
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::rotate(model, glm::radians(rotateCharacterRobin), glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+		glm::vec4 viewVector = model * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 		forwardViewRobin = glm::vec3(viewVector);
 		forwardViewRobin = glm::normalize(forwardViewRobin);
 	}
