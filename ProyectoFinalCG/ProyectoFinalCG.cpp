@@ -2039,25 +2039,25 @@ bool Update() {
 	//		Materiales sin textura
 
 	//			Materiales con una sola luz direccional (metales y hojas)
-	//MaterialesSinTexturaUnaLuz();
+	MaterialesSinTexturaUnaLuz();
 
 	//			Materiales con 6 luces posicionales
-	//MaterialesSinTexturaVariasLuces();
-	//MaterialesSinTexturaCocina();
+	MaterialesSinTexturaVariasLuces();
+	MaterialesSinTexturaCocina();
 
 	//			Objetos Sin textura con Iluminación de Fresnel
 	MaterialesSinTexturaFresnel();
 
 	//		Materiales Con textura
 	//			Materiales con varias luces direccionales
-	//MaterialesConTexturasVariasLuces();
+	MaterialesConTexturasVariasLuces();
 	DibujaFondo();
 
 	// Materiales Animados
 	// 	   Materiales con textura
 	
 	//			Materiales con textura animados phong
-	//MaterialesAnimadosVariasLuces();
+	MaterialesAnimadosVariasLuces();
 
 	// glfw: swap buffers 
 	/* Swap front and back buffers */
