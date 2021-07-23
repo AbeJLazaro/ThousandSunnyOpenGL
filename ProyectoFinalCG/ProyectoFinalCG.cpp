@@ -3,8 +3,8 @@
 	Autores:		Lázaro Martínez Abraham Josué
 					Ian
 					Apolo
-	Fecha:			15/07/2021
-	Versión:		1
+	Fecha:			22/07/2021
+	Versión:		1.2
 
 */
 
@@ -219,6 +219,7 @@ float     rotateCharacterRobin = 0.0f;
 
 // Variables para mover el timon
 float timonRotation = 0.0f;
+float escalaTimon = 1.0f;
 
 // Ciclo main
 int main(void) {
@@ -264,7 +265,7 @@ bool Start() {
 	glfwSetScrollCallback(window, scroll_callback);
 
 	// Ocultar el cursor mientras se rota la escena
-	// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// glad: Cargar todos los apuntadores
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -1171,7 +1172,7 @@ void MaterialesSinTexturaVariasLuces() {
 	modelTimon = glm::translate(modelTimon, glm::vec3(0.367935f, 24.7927f, 26.7368f));
 	modelTimon = glm::rotate(modelTimon, glm::radians(glm::radians(timonRotation)), glm::vec3(0.0f, 0.0f, 1.0f));
 	modelTimon = glm::rotate(modelTimon, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	modelTimon = glm::scale(modelTimon, glm::vec3(1.0f, 1.0f, 1.0f));	// escala para los objetos que sean muy grandes
+	modelTimon = glm::scale(modelTimon, glm::vec3(escalaTimon,escalaTimon, escalaTimon));	// escala para los objetos que sean muy grandes
 	materialSinTexturaVariasLucesShader->setMat4("model", modelTimon);
 
 	Material MTimon;
@@ -2245,11 +2246,22 @@ void processInput(GLFWwindow* window)
 		Lintern.Ambient = glm::vec3(0.0f, 0.0f, 0.0f);
 		Lintern.setPower(0.0f);
 	}
+	// Timón
 	if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
 		timonRotation += 20.0f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
 		timonRotation -= 20.0f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+		if (escalaTimon < 2.0f) {
+			escalaTimon += 0.05f;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+		if (escalaTimon > 1.0f) {
+			escalaTimon -= 0.05f;
+		}
 	}
 	// Control animaciones
 	if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {

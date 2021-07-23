@@ -43,7 +43,6 @@ struct SpotLight {
     vec3 specular;       
 };
 
-#define NR_POINT_LIGHTS 4
 #define NR_DIR_LIGHTS 5
 
 in vec3 FragPos;
@@ -54,7 +53,6 @@ in vec2 TexCoords;
 // Luces
 uniform DirLight dirLight[NR_DIR_LIGHTS];
 uniform SpotLight spotLight;
-//uniform PointLight pointLights[NR_POINT_LIGHTS];
 // propiedades material
 uniform vec4 MaterialAmbientColor;
 uniform vec4 MaterialDiffuseColor;
@@ -69,7 +67,6 @@ uniform vec3 viewPos;
 // funciones
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 void main()
 {    
@@ -80,11 +77,7 @@ void main()
     // Calculo de la luz direccional
     for(int i = 0; i < NR_DIR_LIGHTS; i++)
         result += CalcDirLight(dirLight[i], norm, viewDir);
-    
-    // Calculo de las luces puntuales
-    //for(int i = 0; i < NR_POINT_LIGHTS; i++)
-    //    result += CalcPointLight(pointLights[i], norm, FragPos, viewDir); 
-
+        
     // Calculo de la luz linterna
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir); 
 
@@ -112,29 +105,6 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     vec3 ambient = light.ambient * MaterialAmbColor;
     vec3 diffuse = light.diffuse * light.power * diff * MaterialDiffuseColor.xyz;
     vec3 specular = light.specular * light.power * spec * MaterialSpecularColor.xyz;
-    return (ambient + diffuse + specular);
-}
-
-// Calcula el color con un punto de luz
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
-{
-    vec3 lightDir = normalize(light.position - fragPos);
-    // diffuse shading
-    float diff = max(dot(normal, lightDir), 0.0);
-    // specular shading
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-    // attenuation
-    float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
-    // combine results
-    vec3 MaterialAmbColor = vec3(MaterialAmbientColor * MaterialDiffuseColor);
-    vec3 ambient = light.ambient * MaterialAmbColor;
-    vec3 diffuse = light.diffuse * light.power * diff * MaterialDiffuseColor.xyz;
-    vec3 specular = light.specular * light.power * spec * MaterialSpecularColor.xyz;
-    ambient *= attenuation;
-    diffuse *= attenuation;
-    specular *= attenuation;
     return (ambient + diffuse + specular);
 }
 
