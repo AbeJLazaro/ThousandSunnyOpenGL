@@ -1,10 +1,10 @@
 /*
-	Proyecto Final para la Materia de Computación Gráfica e Interacción Humano-Computadora
-	Autores:		Lázaro Martínez Abraham Josué
+	Proyecto Final para la Materia de Computaciï¿½n Grï¿½fica e Interacciï¿½n Humano-Computadora
+	Autores:		Lï¿½zaro Martï¿½nez Abraham Josuï¿½
 					Ian
 					Apolo
 	Fecha:			22/07/2021
-	Versión:		1.2
+	Versiï¿½n:		1.2
 
 */
 
@@ -48,21 +48,21 @@ void DibujaFondo();
 unsigned int loadCubemap(vector<std::string> faces);
 void Limpiar();
 
-// Definición de callbacks
+// Definiciï¿½n de callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
-// Tamaño en pixeles de la ventana
+// Tamaï¿½o en pixeles de la ventana
 const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
-// Definición de cámara (posición en XYZ)
+// Definiciï¿½n de cï¿½mara (posiciï¿½n en XYZ)
 Camera camera(glm::vec3(0.0f, 20.0f, 70.0f));
 
-// Definición de proyeccion y vista
-// Proyección y vista
+// Definiciï¿½n de proyeccion y vista
+// Proyecciï¿½n y vista
 glm::mat4 projection;
 glm::mat4 view;
 
@@ -80,11 +80,7 @@ DirectionalLight posy;
 DirectionalLight negy;
 DirectionalLight posz;
 DirectionalLight negz;
-// PointLights
-PointLight L0;
-PointLight L1;
-PointLight L2;
-PointLight L3;
+
 // Flashlight
 SpotLight Lintern;
 
@@ -187,7 +183,7 @@ Model* Fondo;
 // Animaciones
 Model* Zoro;
 Model* Robin;
-// Máximo número de huesos: 100
+// Mï¿½ximo nï¿½mero de huesos: 100
 #define MAX_RIGGING_BONES 100
 
 // Pose inicial de las animaciones
@@ -199,8 +195,8 @@ int keys = 0;
 int animationCount = 0;
 int animationTypeZoro = 0;
 int animationTypeRobin = 0;
-// Variables para la velocidad de reproducción
-// de la animación
+// Variables para la velocidad de reproducciï¿½n
+// de la animaciï¿½n
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float elapsedTime = 0.0f;
@@ -238,9 +234,9 @@ int main(void) {
 	return 0;
 }
 
-// Inicialización del sistema
+// Inicializaciï¿½n del sistema
 bool Start() {
-	// Inicialización de GLFW
+	// Inicializaciï¿½n de GLFW
 
 	if (!glfwInit())
 		return false;
@@ -248,7 +244,7 @@ bool Start() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// Creación de la ventana con GLFW
+	// Creaciï¿½n de la ventana con GLFW
 	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Thousand Sunny", NULL, NULL);
 	if (window == NULL)
 	{
@@ -274,23 +270,23 @@ bool Start() {
 		return -1;
 	}
 
-	// Activación de buffer de profundidad
+	// Activaciï¿½n de buffer de profundidad
 	glEnable(GL_DEPTH_TEST);
 
-	// Inicialización de las variables de fondo
+	// Inicializaciï¿½n de las variables de fondo
 	bgR = 0.54;
 	bgG = 0.86;
 	bgB = 1.0f;
 	bgA = 1.0f;
 
-	// Compilación y enlace de shaders
+	// Compilaciï¿½n y enlace de shaders
 	if (!InicializacionShaders()) {
 		return false;
 	}
 	
 	animados->setBonesIDs(MAX_RIGGING_BONES);
 	
-	// Carga la información de los modelos
+	// Carga la informaciï¿½n de los modelos
 	if (!InicializacionModelos()) {
 		return false;
 	}
@@ -305,7 +301,7 @@ bool Start() {
 	return true;
 }
 
-// Carga y compilación de los shaders
+// Carga y compilaciï¿½n de los shaders
 bool InicializacionShaders() {
 	materialSinTexturaUnaLuzShader = new Shader("shaders/objetosSinTextura1Luz.vs", "shaders/objetosSinTextura1Luz.fs");
 	if (materialSinTexturaUnaLuzShader == nullptr) {
@@ -754,10 +750,10 @@ bool InicializacionModelos() {
 
 // Dibujo de materiales sin textura con una sola luz direccional
 void MaterialesSinTexturaUnaLuz() {
-	// Activamos el shader estático
+	// Activamos el shader estï¿½tico
 	materialSinTexturaUnaLuzShader->use();
 
-	// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+	// Aplicamos transformaciones de proyecciï¿½n y cï¿½mara (si las hubiera)
 	materialSinTexturaUnaLuzShader->setMat4("projection", projection);
 	materialSinTexturaUnaLuzShader->setMat4("view", view);
 
@@ -791,7 +787,7 @@ void MaterialesSinTexturaUnaLuz() {
 	materialSinTexturaUnaLuzShader->setFloat("spotLight.cutOff", Lintern.CutOff);
 	materialSinTexturaUnaLuzShader->setFloat("spotLight.outerCutOff", Lintern.OuterCutOff);
 
-	// Posición de la camara
+	// Posiciï¿½n de la camara
 	materialSinTexturaUnaLuzShader->setVec3("viewPos", camera.Position);
 
 	// Habilitar blending
@@ -886,10 +882,10 @@ void MaterialesSinTexturaUnaLuz() {
 
 // Dibujo de materiales sin textura con varias luces direccionales
 void MaterialesSinTexturaVariasLuces() {
-	// Activamos el shader estático
+	// Activamos el shader estï¿½tico
 	materialSinTexturaVariasLucesShader->use();
 
-	// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+	// Aplicamos transformaciones de proyecciï¿½n y cï¿½mara (si las hubiera)
 	materialSinTexturaVariasLucesShader->setMat4("projection", projection);
 	materialSinTexturaVariasLucesShader->setMat4("view", view);
 
@@ -944,7 +940,7 @@ void MaterialesSinTexturaVariasLuces() {
 	materialSinTexturaVariasLucesShader->setFloat("spotLight.cutOff", Lintern.CutOff);
 	materialSinTexturaVariasLucesShader->setFloat("spotLight.outerCutOff", Lintern.OuterCutOff);
 
-	// Posición de la camara
+	// Posiciï¿½n de la camara
 	materialSinTexturaVariasLucesShader->setVec3("viewPos", camera.Position);
 
 	// Habilitar blending
@@ -1215,10 +1211,10 @@ void MaterialesSinTexturaVariasLuces() {
 
 // Dibujo de materiales sin textura con varias luces direccionales en la cocina
 void MaterialesSinTexturaCocina() {
-	// Activamos el shader estático
+	// Activamos el shader estï¿½tico
 	materialSinTexturaVariasLucesShader->use();
 
-	// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+	// Aplicamos transformaciones de proyecciï¿½n y cï¿½mara (si las hubiera)
 	materialSinTexturaVariasLucesShader->setMat4("projection", projection);
 	materialSinTexturaVariasLucesShader->setMat4("view", view);
 
@@ -1273,7 +1269,7 @@ void MaterialesSinTexturaCocina() {
 	materialSinTexturaVariasLucesShader->setFloat("spotLight.cutOff", Lintern.CutOff);
 	materialSinTexturaVariasLucesShader->setFloat("spotLight.outerCutOff", Lintern.OuterCutOff);
 
-	// Posición de la camara
+	// Posiciï¿½n de la camara
 	materialSinTexturaVariasLucesShader->setVec3("viewPos", camera.Position);
 
 	// Habilitar blending
@@ -1603,10 +1599,10 @@ void MaterialesSinTexturaCocina() {
 
 // Dibujo de materiales con textura con varias luces direccionales
 void MaterialesConTexturasVariasLuces() {
-	// Activamos el shader estático
+	// Activamos el shader estï¿½tico
 	materialConTexturaVariasLucesShader->use();
 
-	// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+	// Aplicamos transformaciones de proyecciï¿½n y cï¿½mara (si las hubiera)
 	materialConTexturaVariasLucesShader->setMat4("projection", projection);
 	materialConTexturaVariasLucesShader->setMat4("view", view);
 
@@ -1661,7 +1657,7 @@ void MaterialesConTexturasVariasLuces() {
 	materialConTexturaVariasLucesShader->setFloat("spotLight.cutOff", Lintern.CutOff);
 	materialConTexturaVariasLucesShader->setFloat("spotLight.outerCutOff", Lintern.OuterCutOff);
 
-	// Posición de la camara
+	// Posiciï¿½n de la camara
 	materialConTexturaVariasLucesShader->setVec3("viewPos", camera.Position);
 
 	// Habilitar blending
@@ -1769,10 +1765,10 @@ void MaterialesConTexturasVariasLuces() {
 
 // Dibujo del fondo
 void DibujaFondo() {
-	// Activamos el shader estático
+	// Activamos el shader estï¿½tico
 	fondoShader->use();
 
-	// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+	// Aplicamos transformaciones de proyecciï¿½n y cï¿½mara (si las hubiera)
 	fondoShader->setMat4("projection", projection);
 	fondoShader->setMat4("view", view);
 
@@ -1822,7 +1818,7 @@ void DibujaFondo() {
 	fondoShader->setVec3("dirLight[5].specular", negz.Specular);
 	fondoShader->setVec3("dirLight[5].power", negz.Power);
 
-	// Posición de la camara
+	// Posiciï¿½n de la camara
 	fondoShader->setVec3("viewPos", camera.Position);
 
 	// Habilitar blending
@@ -1853,10 +1849,10 @@ void MaterialesSinTexturaFresnel() {
 		"models/CubeMapFondo/negz.png"
 	};
 	unsigned int cubemapTexture = loadCubemap(faces);
-	// Activamos el shader estático
+	// Activamos el shader estï¿½tico
 	fresnelShader->use();
 
-	// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+	// Aplicamos transformaciones de proyecciï¿½n y cï¿½mara (si las hubiera)
 	fresnelShader->setMat4("projection", projection);
 	fresnelShader->setMat4("view", view);
 
@@ -1897,16 +1893,16 @@ void MaterialesAnimadosVariasLuces() {
 		if (animationCount > keys - 1) {
 			animationCount = 0;
 		}
-		// Configuración de la pose en el instante t
+		// Configuraciï¿½n de la pose en el instante t
 		Zoro->SetPose((float)animationCount, ZoroBones, animationTypeZoro);
 		Robin->SetPose((float)animationCount, RobinBones, animationTypeRobin);
 		elapsedTime = 0.0f;
 	}
 
-	// Activamos el shader dinámico
+	// Activamos el shader dinï¿½mico
 	animados->use();
 
-	// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+	// Aplicamos transformaciones de proyecciï¿½n y cï¿½mara (si las hubiera)
 	animados->setMat4("projection", projection);
 	animados->setMat4("view", view);
 
@@ -1957,7 +1953,7 @@ void MaterialesAnimadosVariasLuces() {
 	animados->setFloat("spotLight.cutOff", Lintern.CutOff);
 	animados->setFloat("spotLight.outerCutOff", Lintern.OuterCutOff);
 
-	// Posición de la camara
+	// Posiciï¿½n de la camara
 	animados->setVec3("viewPos", camera.Position);
 
 	// Enable blending
@@ -2012,7 +2008,7 @@ bool Update() {
 	// Procesa la entrada del teclado o mouse
 	processInput(window);
 
-	// Cálculo del framerate
+	// Cï¿½lculo del framerate
 	float currentFrame = (float)glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
@@ -2036,7 +2032,7 @@ bool Update() {
 	projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 	view = camera.GetViewMatrix();
 
-	// Materiales Estáticos
+	// Materiales Estï¿½ticos
 	//		Materiales sin textura
 
 	//			Materiales con una sola luz direccional (metales y hojas)
@@ -2046,7 +2042,7 @@ bool Update() {
 	MaterialesSinTexturaVariasLuces();
 	MaterialesSinTexturaCocina();
 
-	//			Objetos Sin textura con Iluminación de Fresnel
+	//			Objetos Sin textura con Iluminaciï¿½n de Fresnel
 	MaterialesSinTexturaFresnel();
 
 	//		Materiales Con textura
@@ -2070,7 +2066,7 @@ bool Update() {
 	return true;
 }
 
-// Función para eliminar de memoria las mallas
+// Funciï¿½n para eliminar de memoria las mallas
 void Limpiar() {
 	delete Canons;
 	delete MarcoOroPuerta;
@@ -2246,7 +2242,7 @@ void processInput(GLFWwindow* window)
 		Lintern.Ambient = glm::vec3(0.0f, 0.0f, 0.0f);
 		Lintern.setPower(0.0f);
 	}
-	// Timón
+	// Timï¿½n
 	if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
 		timonRotation += 20.0f;
 	}
@@ -2309,7 +2305,7 @@ void processInput(GLFWwindow* window)
 	}
 }
 
-// glfw: Actualizamos el puerto de vista si hay cambios del tamaño
+// glfw: Actualizamos el puerto de vista si hay cambios del tamaï¿½o
 // de la ventana
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -2342,7 +2338,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	camera.ProcessMouseScroll((float)yoffset);
 }
 
-unsigned int loadCubemap(vector<std::string> faces)
+ loadCubemap(vector<std::string> faces)
 {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
