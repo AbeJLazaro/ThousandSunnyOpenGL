@@ -27,10 +27,8 @@
 #include <shader_m.h>
 #include <camera.h>
 #include <model.h>
-#include <Light.h>
 #include <DirectionalLight.h>
 #include <SpotLight.h>
-#include <PointLight.h>
 #include <Material.h>
 
 // Functions
@@ -2338,7 +2336,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	camera.ProcessMouseScroll((float)yoffset);
 }
 
- loadCubemap(vector<std::string> faces)
+unsigned int loadCubemap(vector<std::string> faces)
 {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
